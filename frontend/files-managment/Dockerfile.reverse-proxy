@@ -1,0 +1,2 @@
+FROM nginx:latest
+COPY ./frontend/files-managment/default.conf /etc/nginx/conf.d/default.conf

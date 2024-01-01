@@ -1,0 +1,11 @@
+FROM node:18
+
+WORKDIR /backend
+
+COPY ./backend/source-safe/package*.json ./
+
+RUN npm install
+
+COPY ./backend/source-safe/ .
+
+CMD [ "npm", "run", "start:dev" ]

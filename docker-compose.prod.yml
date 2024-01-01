@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  postgres-source-safe-prod:
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: source-safe
+    container_name: db
+    ports:
+      - '5431:5432'
+
+  backend-source-safe-prod:
+    build:
+      context: .
+      dockerfile: ./backend/source-safe/Dockerfile.prod
+    container_name: backend-source-safe-prod
+    depends_on:
+      - postgres-source-safe-prod
+    environment:
+      - DB_HOST=postgres-source-safe-prod
+
+  frontend-source-safe-prod:
+    build:
+      context: .
+      dockerfile: ./frontend/files-managment/Dockerfile.prod
+    container_name: frontend-source-safe-prod
+    depends_on:
+      - backend-source-safe-prod
+    ports:
+      - '3017:3000'
+
+  pgadmin-source-safe-prod:
+    image: dpage/pgadmin4
+    restart: always
+    container_name: pgadmin-source-safe-prod
+    environment:
+      - PGADMIN_DEFAULT_EMAIL=admin@admin.com
+      - PGADMIN_DEFAULT_PASSWORD=pgadmin4
+    ports:
+      - '5050:80'
+    depends_on:
+      - postgres-source-safe-prod
+
+  backend-source-safe-prod-nginx:
+    container_name: backend-source-safe-prod-nginx
+    ports:
+      - '4050:80'
+    build:
+      context: .
+      dockerfile: ./backend/source-safe/Dockerfile.reverse-proxy
+    depends_on:
+      - backend-source-safe-prod
+
+  frontend-source-safe-prod-nginx:
+    container_name: frontend-source-safe-prod-nginx
+    ports:
+      - '4060:80'
+    build:
+      context: .
+      dockerfile: ./frontend/files-managment/Dockerfile.reverse-proxy
+    depends_on:
+      - frontend-source-safe-prod
+    

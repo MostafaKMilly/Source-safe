@@ -1,0 +1,21 @@
+FROM node:18-alpine AS builder
+WORKDIR /frontend
+
+COPY ./frontend/files-managment/package*.json ./
+
+RUN npm install
+
+COPY ./frontend/files-managment .
+
+RUN npm run build
+
+
+FROM node:18-alpine AS runner
+WORKDIR /frontend
+
+COPY --from=builder /frontend/.next ./.next
+COPY --from=builder /frontend/public ./public
+COPY --from=builder /frontend/node_modules ./node_modules
+COPY --from=builder /frontend/package.json ./
+
+CMD npm start

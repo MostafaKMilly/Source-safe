@@ -1,0 +1,8 @@
+FROM node:18
+
+WORKDIR /frontend
+COPY ./frontend/files-managment/package*.json ./
+RUN npm install
+COPY ./frontend/files-managment .
+EXPOSE 3000
+CMD npm run dev
