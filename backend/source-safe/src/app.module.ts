@@ -9,6 +9,8 @@ import { FilesModule } from './files/files.module';
 import { File } from './files/file.entity';
 import { GroupModule } from './group/group.module';
 import { Group } from './group/group.entity';
+import { HistoryModule } from './history/history.module';
+import { History } from './history/history.entity';
 
 @Module({
   imports: [
@@ -21,7 +23,7 @@ import { Group } from './group/group.entity';
       username: 'postgres',
       password: process.env.POSTGRES_PASSWORD,
       database: process.env.POSTGRES_DATABASE,
-      entities: [User, File, Group],
+      entities: [User, File, Group, History],
       autoLoadEntities: true,
       synchronize: true,
     }),
@@ -30,6 +32,7 @@ import { Group } from './group/group.entity';
     UsersModule,
     FilesModule,
     GroupModule,
+    HistoryModule,
   ],
   controllers: [],
   providers: [],

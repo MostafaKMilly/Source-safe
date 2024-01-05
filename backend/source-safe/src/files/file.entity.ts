@@ -1,3 +1,4 @@
+import { History } from 'src/history/history.entity';
 import { User } from 'src/users/user.entity';
 import {
   Entity,
@@ -5,6 +6,9 @@ import {
   Column,
   JoinColumn,
   ManyToOne,
+  ManyToMany,
+  JoinTable,
+  OneToMany,
 } from 'typeorm';
 
 @Entity('files')
@@ -28,6 +32,11 @@ export class File {
   @ManyToOne(() => User, (user) => user.uploadedFiles, { nullable: true })
   @JoinColumn({ name: 'uploadedBy' })
   uploadedBy: User;
+
+  @OneToMany(() => History, (history) => history.file, {
+    nullable: true,
+  })
+  history: Array<History>;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;

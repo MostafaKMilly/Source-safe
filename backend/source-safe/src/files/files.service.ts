@@ -5,6 +5,7 @@ import { File } from './file.entity'; // Adjust this import based on your projec
 import { User } from 'src/users/user.entity';
 import * as fs from 'fs';
 import * as path from 'path';
+import { HistoryService } from 'src/history/history.service';
 
 @Injectable()
 export class FilesService {
@@ -13,6 +14,7 @@ export class FilesService {
     private fileRepository: Repository<File>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    private readonly historyService: HistoryService,
   ) {}
 
   async uploadFile(file: Express.Multer.File, userId: number): Promise<File> {
@@ -27,7 +29,6 @@ export class FilesService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
     const newFile = this.fileRepository.create({
       name: file.originalname,
       path: filePath,
@@ -35,12 +36,16 @@ export class FilesService {
       status: 'free',
     });
     await this.fileRepository.save(newFile);
+    if (newFile) {
+      this.historyService.create({
+        file: newFile,
+      });
+    }
     return newFile;
   }
 
   private saveFileOnServer(file: Express.Multer.File): string {
     const uploadDirectory = 'uploads';
-
     if (!fs.existsSync(uploadDirectory)) {
       fs.mkdirSync(uploadDirectory, { recursive: true });
     }
@@ -72,16 +77,18 @@ export class FilesService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-
     const files = await this.fileRepository.findBy({
       id: In(fileIds),
     });
-    files.forEach((file) => {
+    files.forEach(async (file) => {
       if (file.status !== 'free') {
         throw new Error(`File ${file.id} is not available for check-in`);
       }
       file.lockedBy = user;
       file.status = 'checked-out';
+      await this.historyService.create({
+        file: file,
+      });
     });
 
     await this.fileRepository.save(files);
@@ -100,9 +107,14 @@ export class FilesService {
     if (file.lockedBy.id !== userId) {
       throw new Error('User does not have permission to check out this file');
     }
-
     file.status = 'free';
     file.lockedBy = null;
+    if (file) {
+      await this.historyService.create({
+        file: file,
+      });
+    }
+
     await this.fileRepository.save(file);
   }
 
@@ -131,6 +143,20 @@ export class FilesService {
   }
 
   async getAllFiles(): Promise<File[]> {
-    return this.fileRepository.find();
+    return this.fileRepository.find({
+      relations: ['lockedBy', 'uploadedBy'],
+      select: {
+        lockedBy: {
+          username: true,
+          id: true,
+          email: true,
+        },
+        uploadedBy: {
+          username: true,
+          id: true,
+          email: true,
+        },
+      },
+    });
   }
 }

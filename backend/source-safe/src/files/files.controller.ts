@@ -7,12 +7,14 @@ import {
   Req,
   UseInterceptors,
   UploadedFile,
+  UseGuards,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { CheckInDto } from './dto/check-file.dto';
 import { CheckOutDto } from './dto/checkout-file.dto';
 import { AuthRequest } from 'src/auth/jwt-payload.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('files')
 export class FilesController {
@@ -20,6 +22,7 @@ export class FilesController {
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
+  @UseGuards(AuthGuard('jwt'))
   async uploadfile(
     @Req() req: AuthRequest,
     @UploadedFile() file: Express.Multer.File,
@@ -29,6 +32,7 @@ export class FilesController {
   }
 
   @Post('check-in')
+  @UseGuards(AuthGuard('jwt'))
   async checkIn(@Req() req: AuthRequest, @Body() checkInData: CheckInDto) {
     const userId = req.user.id;
 
@@ -36,6 +40,7 @@ export class FilesController {
   }
 
   @Post('check-out')
+  @UseGuards(AuthGuard('jwt'))
   async checkOut(@Req() req: AuthRequest, @Body() checkOutData: CheckOutDto) {
     const userId = req.user.id;
 
