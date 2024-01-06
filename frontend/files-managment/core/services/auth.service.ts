@@ -5,8 +5,13 @@ export type AuthToken = {
 };
 
 export type SignUpResponse = {
-  username: string;
-  email: string;
+  access_token: string;
+  user: {
+    username: string;
+    email: string;
+    password: string;
+    id: number;
+  };
 };
 
 export type RegisterUserDto = {

@@ -1,0 +1,7 @@
+.site-layout-background {
+  background: white;
+}
+
+.site-layout-background .ant-layout-sider-trigger {
+  background: rgba(0, 0, 0, 0.88) !important;
+}

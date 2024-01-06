@@ -10,6 +10,8 @@ import { ConfigService } from '@nestjs/config';
 import { Repository } from 'typeorm';
 import { User } from '../users/user.entity';
 import { InjectRepository } from '@nestjs/typeorm';
+import { RegisterUserDto } from 'src/users/register-user.dto';
+import * as bcrypt from 'bcrypt';
 
 @Injectable()
 export class AuthService {
@@ -35,6 +37,41 @@ export class AuthService {
 
     return {
       access_token: accessToken,
+    };
+  }
+
+  async signUp(registerUserDto: RegisterUserDto) {
+    const { username, password, email } = registerUserDto;
+
+    const isUsernameExist = await this.usersRepository.findOne({
+      where: { username },
+    });
+
+    const isEmailExist = await this.usersRepository.findOne({
+      where: { email },
+    });
+
+    if (isUsernameExist)
+      throw new BadRequestException('Username already exists');
+    if (isEmailExist) throw new BadRequestException('Email already exists');
+
+    const salt = await bcrypt.genSalt();
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    const user = this.usersRepository.create({
+      username,
+      email,
+      password: hashedPassword,
+    });
+
+    await this.usersRepository.save(user);
+
+    const payload = { id: user.id, username: user.username };
+    const accessToken = await this.jwtService.signAsync(payload);
+
+    return {
+      access_token: accessToken,
+      user,
     };
   }
 

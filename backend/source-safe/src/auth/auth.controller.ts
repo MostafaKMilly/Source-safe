@@ -33,7 +33,7 @@ export class AuthController {
     if (errors.length > 0) {
       throw new BadRequestException(errors);
     }
-    return this.usersService.create(registerUserDto);
+    return this.authService.signUp(registerUserDto);
   }
 
   @Public()
