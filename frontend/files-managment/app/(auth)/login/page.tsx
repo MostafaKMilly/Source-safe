@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Button, Form, Input, Typography, Checkbox } from "antd";
 import { SignInDto } from "@/core/services/auth.service";
-import { login } from "@/core/actions/login.action";
+import { login } from "@/core/actions/login.actions";
 import Link from "next/link";
 
 const { Title } = Typography;

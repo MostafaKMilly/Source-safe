@@ -1,19 +1,10 @@
 import {
-  DownOutlined,
-  EllipsisOutlined,
-  FilterOutlined,
-  FolderOpenOutlined,
-  PlusOutlined,
+  PlusOutlined
 } from "@ant-design/icons";
-import MenuItem from "antd/es/menu/MenuItem";
 import Title from "antd/es/typography/Title";
 import Search from "antd/es/input/Search";
 import GroupsCards from "@/app/(dashboard)/components/GroupsCards";
 import Button from "antd/es/button";
-import Menu from "antd/es/menu";
-import Checkbox from "antd/es/checkbox/Checkbox";
-import Dropdown from "antd/es/dropdown/dropdown";
-import MenuDivider from "antd/es/menu/MenuDivider";
 import GroupsFilterButton from "./components/GroupsFilterButton";
 
 const groups = [
