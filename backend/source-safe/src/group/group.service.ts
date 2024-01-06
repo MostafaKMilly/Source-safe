@@ -17,8 +17,20 @@ export class GroupService {
     private userRepository: Repository<User>,
   ) {}
 
-  async create(createGroupDto: CreateGroupDto): Promise<Group> {
+  async create(
+    createGroupDto: CreateGroupDto,
+    ownerId: number,
+  ): Promise<Group> {
     const group = this.groupRepository.create(createGroupDto);
+    const owner = await this.userRepository.findOne({
+      where: {
+        id: ownerId,
+      },
+    });
+    if (!owner)
+      throw new HttpException(`Owner not found`, HttpStatus.NOT_FOUND);
+
+    group.owner = owner;
     return await this.groupRepository.save(group);
   }
 
@@ -41,21 +53,36 @@ export class GroupService {
     return group;
   }
 
-  async update(id: number, updateData: UpdateGroupDto): Promise<Group> {
-    const group = await this.groupRepository.preload({
-      id,
-      ...updateData,
+  async update(
+    id: number,
+    updateData: UpdateGroupDto,
+    userId: number,
+  ): Promise<Group> {
+    const group = await this.groupRepository.findOne({
+      relations: ['owner'],
+      where: { id },
     });
     if (!group)
-      throw new HttpException(
-        `group with id = ${id} not found`,
-        HttpStatus.NOT_FOUND,
-      );
-    return await this.groupRepository.save(group);
+      throw new HttpException(`Group not found`, HttpStatus.NOT_FOUND);
+
+    if (group.owner.id !== userId) {
+      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
+    }
+
+    return await this.groupRepository.save({ ...group, ...updateData });
   }
 
-  async delete(id: number) {
-    const group = await this.findOne(id);
+  async delete(id: number, userId: number) {
+    const group = await this.groupRepository.findOne({
+      relations: ['owner'],
+      where: { id },
+    });
+    if (!group)
+      throw new HttpException(`Group not found`, HttpStatus.NOT_FOUND);
+
+    if (group.owner.id !== userId) {
+      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
+    }
     if (!group)
       throw new HttpException(
         `group with id = ${id} not found`,
@@ -64,34 +91,52 @@ export class GroupService {
     return await this.groupRepository.remove(group);
   }
 
-  async addUser(addDate: AddUserDto): Promise<boolean> {
+  async addUser(addUserData: AddUserDto, userId: number): Promise<boolean> {
     const users =
-      addDate.users &&
-      (await Promise.all(addDate.users.map((item) => this.preLoadUser(item))));
-
-    const group = await this.findOne(addDate.groupId);
+      addUserData.users &&
+      (await Promise.all(
+        addUserData.users.map((item) => this.preLoadUser(item)),
+      ));
+    const group = await this.groupRepository.findOne({
+      relations: ['owner'],
+      where: { id: addUserData.groupId },
+    });
     if (!group)
-      throw new HttpException(`group not found`, HttpStatus.NOT_FOUND);
+      throw new HttpException(`Group not found`, HttpStatus.NOT_FOUND);
 
-    const setUser = new Set(users.concat(group.user));
+    if (group.owner.id !== userId) {
+      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
+    }
+    const setUser = new Set(users.concat(group.users));
 
     const data = await this.groupRepository.preload({
-      id: addDate.groupId,
+      id: addUserData.groupId,
       ...group,
-      user: [...setUser],
+      users: [...setUser],
     });
     await this.groupRepository.save(data);
     return true;
   }
 
-  async removeUser(removeDate: RemoveUserDto): Promise<boolean> {
-    const group = await this.findOne(removeDate.groupId);
+  async removeUser(
+    removeUserData: RemoveUserDto,
+    userId: number,
+  ): Promise<boolean> {
+    const group = await this.groupRepository.findOne({
+      relations: ['owner'],
+      where: { id: removeUserData.groupId },
+    });
     if (!group)
-      throw new HttpException(`group not found`, HttpStatus.NOT_FOUND);
+      throw new HttpException(`Group not found`, HttpStatus.NOT_FOUND);
+
+    if (group.owner.id !== userId) {
+      throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
+    }
+
     const data = await this.groupRepository.preload({
-      id: removeDate.groupId,
+      id: removeUserData.groupId,
       ...group,
-      user: group.user.filter((item) => item.id !== removeDate.userId),
+      users: group.users.filter((item) => item.id !== removeUserData.userId),
     });
     await this.groupRepository.save(data);
     return true;

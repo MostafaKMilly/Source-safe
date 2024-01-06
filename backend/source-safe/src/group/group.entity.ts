@@ -4,6 +4,7 @@ import {
   Column,
   ManyToMany,
   JoinTable,
+  ManyToOne,
 } from 'typeorm';
 import { User } from 'src/users/user.entity';
 
@@ -26,5 +27,7 @@ export class Group {
     cascade: true,
     nullable: true,
   })
-  user: Array<User>;
+  users: Array<User>;
+  @ManyToOne(() => User, (user) => user.ownedGroups)
+  owner: User;
 }

@@ -29,10 +29,13 @@ export class User {
   @OneToMany(() => File, (file) => file.uploadedBy)
   uploadedFiles: File[];
 
-  @ManyToMany(() => Group, (group) => group.user)
+  @ManyToMany(() => Group, (group) => group.users)
   group: Array<Group>;
 
   async validatePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password);
   }
+
+  @OneToMany(() => Group, (group) => group.owner)
+  ownedGroups: Group[];
 }
