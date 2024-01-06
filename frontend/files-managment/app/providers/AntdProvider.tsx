@@ -23,12 +23,15 @@ const themeConfig: ThemeConfig = {
   },
   components: {
     Button: {
-      algorithm: true, // Enable algorithm
+      algorithm: true,
       controlHeight: 38,
     },
     Input: {
-      algorithm: true, // Enable algorithm
+      algorithm: true,
       controlHeight: 42,
+    },
+    Menu: {
+      darkItemBg: "transparent",
     },
   },
 };

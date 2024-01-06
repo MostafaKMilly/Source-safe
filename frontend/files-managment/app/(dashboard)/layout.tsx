@@ -1,23 +1,22 @@
-"use client";
-import { Layout, Menu, Breadcrumb, Avatar } from "antd";
-import {
-    UserOutlined, LockOutlined,
-    FolderOpenOutlined,
-    FileOutlined
-} from "@ant-design/icons";
-import React, { useState } from "react";
+import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import React from "react";
 import "./layout.css";
+import Breadcrumbs from "./components/Breadcrumbs";
+import Sidebar from "./components/Sidebar";
+import Layout, { Content, Footer, Header } from "antd/es/layout/layout";
+import Menu from "antd/es/menu";
+import Avatar from "antd/es/avatar/avatar";
+import { getUserProfile, logoutUser } from "@/core/actions/users.actions";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
+import UserMenu from "./components/UserMenu";
 
-const { SubMenu } = Menu;
-const { Header, Content, Sider, Footer } = Layout;
-
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const [collapsed, setCollapsed] = useState(false);
-  const [breadcrumb, setBreadcrumb] = useState(["Home", "Groups"]);
+  const currentUser = await getUserProfile();
 
   return (
     <Layout style={{ height: "100%" }}>
@@ -37,56 +36,14 @@ export default function RootLayout({
             Source Safe
           </span>
         </div>
-
-        <Menu
-          theme="dark"
-          mode="horizontal"
-          style={{ background: "transparent !important" }}
-        >
-          <SubMenu
-            style={{ background: "transparent !important" }}
-            key="userMenu"
-            icon={
-              <Avatar
-                style={{ backgroundColor: "#87d068", justifyContent: "center" }}
-                icon={<UserOutlined />}
-              />
-            }
-            title="User Name"
-          >
-            <Menu.Item key="profile">Profile</Menu.Item>
-            <Menu.Item key="logout">Logout</Menu.Item>
-          </SubMenu>
-        </Menu>
+        <div style={{ width: "162px" }}>
+          <UserMenu logout={logoutUser} username={currentUser.username} />
+        </div>
       </Header>
-      <Layout>
-        <Sider
-          width={200}
-          className="site-layout-background"
-          collapsible
-          collapsed={collapsed}
-          onCollapse={setCollapsed}
-          style={{ background: "white" }}
-        >
-          <Menu
-            mode="inline"
-            defaultSelectedKeys={["1"]}
-            style={{ height: "100%", borderRight: 0 }}
-          >
-            <Menu.Item key="1" icon={<FolderOpenOutlined />}>
-              Groups
-            </Menu.Item>
-            <Menu.Item key="2" icon={<FileOutlined />}>
-              Files
-            </Menu.Item>
-          </Menu>
-        </Sider>
+      <Layout style={{ flexDirection: "row" }}>
+        <Sidebar />
         <Layout style={{ padding: "0 24px 24px" }}>
-          <Breadcrumb style={{ margin: "16px 0" }}>
-            {breadcrumb.map((item, index) => (
-              <Breadcrumb.Item key={index}>{item}</Breadcrumb.Item>
-            ))}
-          </Breadcrumb>
+          <Breadcrumbs />
           <Content
             className="site-layout-background"
             style={{

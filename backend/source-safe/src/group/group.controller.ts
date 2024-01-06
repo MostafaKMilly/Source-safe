@@ -7,6 +7,7 @@ import {
   Param,
   Delete,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -16,9 +17,11 @@ import { ApiTags } from '@nestjs/swagger';
 import { AddUserDto } from './dto/add-user.dto';
 import { RemoveUserDto } from './dto/remove-user.dto';
 import { AuthRequest } from 'src/auth/jwt-payload.interface';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('group')
 @Controller('group')
+@UseGuards(AuthGuard('jwt'))
 export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 

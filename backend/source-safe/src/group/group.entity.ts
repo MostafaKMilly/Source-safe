@@ -16,6 +16,9 @@ export class Group {
   @Column()
   name: string;
 
+  @Column()
+  description: string;
+
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 

@@ -4,13 +4,15 @@ import { Button, Form, Input, Typography, Checkbox } from "antd";
 import { SignInDto } from "@/core/services/auth.service";
 import { login } from "@/core/actions/login.actions";
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 
 const { Title } = Typography;
 
 export default function LoginPage() {
   const [form] = Form.useForm();
   const [pending, setIsPending] = useState(false);
-  const [error, setError] = useState("");
+  const params = useSearchParams();
+  const [error, setError] = useState(params.get("message"));
 
   const onFinish = async (values: SignInDto) => {
     setIsPending(true);
