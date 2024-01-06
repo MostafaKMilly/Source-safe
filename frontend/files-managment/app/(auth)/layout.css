@@ -1,0 +1,40 @@
+.layout {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  background: rgba(0, 0, 0, 0.88) !important;
+}
+
+.logo {
+  float: left;
+  display: flex;
+  align-items: center;
+}
+
+.site-layout-content {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: #fff;
+  padding: 20px;
+  margin: 16px;
+  box-shadow: 0 4px 8px 0 rgba(138, 138, 138, 0.2);
+  transition: 0.3s;
+  width: fit-content;
+  border-radius: 4px;
+}
+
+.footer {
+  text-align: center;
+  padding: 12px 50px;
+  background: #f0f2f5;
+}
+
+.content {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
