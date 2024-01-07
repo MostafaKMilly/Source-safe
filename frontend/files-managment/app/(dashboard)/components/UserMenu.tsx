@@ -14,6 +14,7 @@ function UserMenu({
     <Menu
       theme="dark"
       mode="horizontal"
+      disabledOverflow
       items={[
         {
           label: username,

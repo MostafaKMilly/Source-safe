@@ -26,7 +26,7 @@ export class Group {
   updatedAt: Date;
 
   @JoinTable()
-  @ManyToMany(() => User, (user) => user.group, {
+  @ManyToMany(() => User, (user) => user.groups, {
     cascade: true,
     nullable: true,
   })

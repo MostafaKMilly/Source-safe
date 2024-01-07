@@ -19,6 +19,7 @@ import { AddUserDto } from './dto/add-user.dto';
 import { RemoveUserDto } from './dto/remove-user.dto';
 import { AuthRequest } from 'src/auth/jwt-payload.interface';
 import { AuthGuard } from '@nestjs/passport';
+import { SetGroupUsersDto } from './dto/set-group-users.dto';
 
 @ApiTags('group')
 @Controller('group')
@@ -70,10 +71,21 @@ export class GroupController {
     const userId = req.user.id;
     return this.groupService.addUser(addData, userId);
   }
+  @Post(':id/leave')
+  async leaveGroup(@Param('id') id: string, @Req() req) {
+    const userId = req.user.id;
+    return this.groupService.leaveGroup({ groupId: +id, userId });
+  }
 
   @Post('removeUser')
   async removeUser(@Body() removeData: RemoveUserDto, @Req() req) {
     const userId = req.user.id;
     return this.groupService.removeUser(removeData, userId);
+  }
+
+  @Post('setUsers')
+  async setUsers(@Body() data: SetGroupUsersDto, @Req() req) {
+    const userId = req.user.id;
+    return this.groupService.setGroupUsers(data, userId);
   }
 }

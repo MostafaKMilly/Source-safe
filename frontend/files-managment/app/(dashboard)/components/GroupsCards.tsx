@@ -1,20 +1,10 @@
-"use client";
-import React, { useState } from "react";
-import { Card, Col, Row, Menu, Dropdown, Button, Empty } from "antd";
-import { EllipsisOutlined, FolderOpenOutlined } from "@ant-design/icons";
 import { Group } from "@/core/models/Group.model";
-import GroupFormDialog from "./GroupFormDialog";
 import GroupsEmpty from "./GroupsEmpty";
 import GroupCard from "./GroupCard";
-import { User } from "@/core/models/User.model";
+import Row from "antd/es/row";
+import Col from "antd/es/col";
 
-function GroupsCards({
-  groups,
-  currentUser,
-}: {
-  groups: Group[];
-  currentUser: User;
-}) {
+function GroupsCards({ groups }: { groups: Omit<Group, "users">[] }) {
   return (
     <Row gutter={16} style={{ overflowY: "auto", height: "100%" }}>
       {groups.length === 0 ? (
@@ -22,10 +12,7 @@ function GroupsCards({
       ) : (
         groups.map((group, index) => (
           <Col span={8} key={index}>
-            <GroupCard
-              group={group}
-              isOwner={currentUser.id === group.owner.id}
-            />
+            <GroupCard group={group} />
           </Col>
         ))
       )}

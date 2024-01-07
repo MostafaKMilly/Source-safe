@@ -5,6 +5,7 @@ import {
   AddUserDto,
   RemoveUserDto,
   groupsService,
+  SetGroupUsersDto,
 } from "@/core/services/group.service";
 import { revalidateTag } from "next/cache";
 
@@ -27,20 +28,37 @@ export const deleteGroup = async (groupId: number) => {
 
 export const addUsersToGroup = async (details: AddUserDto) => {
   const response = await groupsService.addUsersToGroup(details);
+  revalidateTag("groups");
   return response;
 };
 
 export const removeUserFromGroup = async (details: RemoveUserDto) => {
   const response = await groupsService.removeUserFromGroup(details);
+  revalidateTag("groups");
   return response;
 };
 
-export const getAllGroups = async (name?:string) => {
-  const response = await groupsService.getAllGroups(name);
+export const getAllGroups = async (
+  name?: string,
+  showOwnerGroups?: boolean
+) => {
+  const response = await groupsService.getAllGroups(name, showOwnerGroups);
   return response;
 };
 
 export const getGroup = async (groupId: number) => {
   const response = await groupsService.getGroup(groupId);
+  return response;
+};
+
+export const setGroupUsers = async (data: SetGroupUsersDto) => {
+  const response = await groupsService.setGroupUsers(data);
+  revalidateTag("groups");
+  return response;
+};
+
+export const leaveGroup = async (groupId: number) => {
+  const response = await groupsService.leaveGroup(groupId);
+  revalidateTag("groups");
   return response;
 };

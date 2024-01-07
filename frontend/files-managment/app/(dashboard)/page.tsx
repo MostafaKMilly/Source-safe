@@ -6,15 +6,17 @@ import Button from "antd/es/button";
 import GroupsFilterButton from "./components/GroupsFilterButton";
 import { getAllGroups } from "@/core/actions/group.actions";
 import GroupsToolbar from "./components/GroupsToolbar";
-import { getUserProfile } from "@/core/actions/users.actions";
+import { getAllUsers, getUserProfile } from "@/core/actions/users.actions";
 
 export default async function Home({
   searchParams,
 }: {
-  searchParams?: { [key: string]: string | string[] | undefined };
+  searchParams?: { name?: string; showOwnerGroups?: boolean };
 }) {
-  const groups = await getAllGroups(searchParams?.name as string);
-  const currentUser = await getUserProfile();
+  const groups = await getAllGroups(
+    searchParams?.name,
+    searchParams?.showOwnerGroups
+  );
 
   return (
     <div
@@ -38,7 +40,7 @@ export default async function Home({
         </Title>
         <GroupsToolbar />
       </div>
-      <GroupsCards groups={groups} currentUser={currentUser} />
+      <GroupsCards groups={groups} />
     </div>
   );
 }

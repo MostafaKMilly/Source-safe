@@ -21,15 +21,23 @@ export type RemoveUserDto = {
   groupId: number;
 };
 
+export type SetGroupUsersDto = {
+  groupId: number;
+  userIds: number[];
+};
+
 class GroupsService extends ApiService {
   public createGroup(details: CreateGroupDto): Promise<Group> {
     return this.post<Group>("/group/create", details);
   }
 
-  public getAllGroups(name?: string): Promise<Group[]> {
+  public getAllGroups(
+    name?: string,
+    showOwnerGroups?: boolean
+  ): Promise<Omit<Group, "users">[]> {
     return this.get<Group[]>(
       "/group/getAll",
-      { name },
+      { name, showOwnerGroups },
       {
         next: {
           tags: ["groups"],
@@ -60,6 +68,12 @@ class GroupsService extends ApiService {
 
   public removeUserFromGroup(details: RemoveUserDto): Promise<boolean> {
     return this.post<boolean>("/group/removeUser", details);
+  }
+  public setGroupUsers(data: SetGroupUsersDto): Promise<boolean> {
+    return this.post<boolean>("/group/setUsers", data);
+  }
+  public leaveGroup(groupId: number): Promise<boolean> {
+    return this.post<boolean>(`/group/${groupId}/leave`, {});
   }
 }
 

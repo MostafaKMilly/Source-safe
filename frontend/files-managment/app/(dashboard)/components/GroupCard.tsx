@@ -1,42 +1,15 @@
-"use client";
 import { Group } from "@/core/models/Group.model";
-import {
-  EllipsisOutlined,
-  FolderOpenOutlined,
-  DeleteOutlined,
-  UserAddOutlined,
-  EditOutlined,
-  LogoutOutlined,
-} from "@ant-design/icons";
-import { Button, Card, Dropdown, Menu } from "antd";
-import React, { useState } from "react";
-import GroupFormDialog from "./GroupFormDialog";
+import { FolderOpenOutlined } from "@ant-design/icons";
 import moment from "moment";
+import GroupCardDropwonMenu from "./GroupCardDropwonMenu";
+import Card from "antd/es/card/Card";
+import { getAllUsers, getUserProfile } from "@/core/actions/users.actions";
+import { getGroup } from "@/core/actions/group.actions";
 
-function GroupCard({ group, isOwner }: { group: Group; isOwner: boolean }) {
-  const [isModalVisible, setIsModalVisible] = useState(false);
-
-  const ownerMenu = (
-    <Menu>
-      <Menu.Item key="delete" icon={<DeleteOutlined />}>
-        Delete
-      </Menu.Item>
-      <Menu.Item key="addUsers" icon={<UserAddOutlined />}>
-        Add Users
-      </Menu.Item>
-      <Menu.Item key="editGroup" icon={<EditOutlined />}>
-        Edit Group
-      </Menu.Item>
-    </Menu>
-  );
-
-  const memberMenu = (
-    <Menu>
-      <Menu.Item key="leave" icon={<LogoutOutlined />}>
-        Leave
-      </Menu.Item>
-    </Menu>
-  );
+async function GroupCard({ group }: { group: Omit<Group, "users"> }) {
+  const users = await getAllUsers();
+  const currentUser = await getUserProfile();
+  const groupData = await getGroup(group.id);
 
   return (
     <Card
@@ -51,21 +24,15 @@ function GroupCard({ group, isOwner }: { group: Group; isOwner: boolean }) {
       }
       title={group.name}
       extra={
-        <Dropdown
-          overlay={isOwner ? ownerMenu : memberMenu}
-          trigger={["click"]}
-        >
-          <Button shape="circle" icon={<EllipsisOutlined />} />
-        </Dropdown>
+        <GroupCardDropwonMenu
+          group={groupData}
+          isOwner={currentUser.id === group.owner.id}
+          users={users}
+        />
       }
     >
       <p>Creation Date: {moment(group.createdAt).format("YYYY-MM-DD HH:mm")}</p>
       <p>{group.description}</p>
-      <GroupFormDialog
-        groupId={group.id}
-        isModalVisible={isModalVisible}
-        setIsModalVisible={setIsModalVisible}
-      />
     </Card>
   );
 }

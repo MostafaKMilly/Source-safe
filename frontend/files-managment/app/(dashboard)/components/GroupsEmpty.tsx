@@ -1,3 +1,4 @@
+"use client"
 import { FolderOpenOutlined } from "@ant-design/icons";
 import { Button, Col, Empty, Row } from "antd";
 import React, { useState } from "react";

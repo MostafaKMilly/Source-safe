@@ -30,7 +30,7 @@ export class User {
   uploadedFiles: File[];
 
   @ManyToMany(() => Group, (group) => group.users)
-  group: Array<Group>;
+  groups: Array<Group>;
 
   async validatePassword(password: string): Promise<boolean> {
     return bcrypt.compare(password, this.password);

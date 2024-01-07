@@ -1,5 +1,5 @@
 "use client";
-import { Dispatch, SetStateAction, useState } from "react";
+import { Dispatch, SetStateAction, useEffect, useState } from "react";
 import { Modal, Form, Input } from "antd";
 import { CreateGroupDto, UpdateGroupDto } from "@/core/services/group.service";
 import { createGroup, updateGroup } from "@/core/actions/group.actions";
@@ -24,6 +24,17 @@ function GroupFormDialog({
     }
     setIsModalVisible(false);
   };
+
+  useEffect(() => {
+    if (group) {
+      form.setFieldsValue({
+        name: group.name,
+        description: group.description,
+      });
+    } else {
+      form.resetFields();
+    }
+  }, [group, form]);
 
   return (
     <Modal
