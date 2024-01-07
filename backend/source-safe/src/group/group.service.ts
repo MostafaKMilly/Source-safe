@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { ILike, In, Repository } from 'typeorm';
+import { FindOptionsWhere, ILike, In, Like, Repository } from 'typeorm';
 import { Group } from './group.entity';
 import { AddUserDto } from './dto/add-user.dto';
 import { User } from 'src/users/user.entity';
@@ -44,22 +44,22 @@ export class GroupService {
       showOwnerGroups?: boolean;
     },
   ): Promise<Array<Group>> {
-    const whereConditions = [];
+    let whereConditions: FindOptionsWhere<Group> = {};
 
     if (!query?.showOwnerGroups) {
-      whereConditions.push({ users: { id: userId } });
+      whereConditions.users = { id: userId };
     }
 
     if (query?.name) {
-      whereConditions.push({ name: ILike(`%${query.name}%`) });
+      whereConditions.name = ILike(`%${query.name}%`);
     }
 
     if (query?.showOwnerGroups) {
-      whereConditions.push({ owner: { id: userId } });
+      whereConditions.owner = { id: userId };
     }
 
     return await this.groupRepository.find({
-      where: whereConditions.length > 0 ? whereConditions : {},
+      where: whereConditions,
       relations: ['owner'],
     });
   }

@@ -43,7 +43,7 @@ export function UserSelectDialog({
   };
   return (
     <Modal
-      title="Add/Remove Users"
+      title="Add Users"
       open={visible}
       onOk={handleOk}
       onCancel={() => setVisible(false)}
