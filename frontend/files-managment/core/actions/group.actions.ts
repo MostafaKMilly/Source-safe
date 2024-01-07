@@ -35,8 +35,8 @@ export const removeUserFromGroup = async (details: RemoveUserDto) => {
   return response;
 };
 
-export const getAllGroups = async () => {
-  const response = await groupsService.getAllGroups();
+export const getAllGroups = async (name?:string) => {
+  const response = await groupsService.getAllGroups(name);
   return response;
 };
 

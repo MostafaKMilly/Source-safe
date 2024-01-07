@@ -26,12 +26,16 @@ class GroupsService extends ApiService {
     return this.post<Group>("/group/create", details);
   }
 
-  public getAllGroups(): Promise<Group[]> {
-    return this.get<Group[]>("/group/getAll", undefined, {
-      next: {
-        tags: ["groups"],
-      },
-    });
+  public getAllGroups(name?: string): Promise<Group[]> {
+    return this.get<Group[]>(
+      "/group/getAll",
+      { name },
+      {
+        next: {
+          tags: ["groups"],
+        },
+      }
+    );
   }
 
   public getGroup(id: number): Promise<Group> {
