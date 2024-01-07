@@ -1,8 +1,11 @@
 "use client";
-import { FileOutlined, FolderOpenOutlined } from "@ant-design/icons";
+import { FileOutlined } from "@ant-design/icons";
 import { Menu } from "antd";
 import Sider from "antd/es/layout/Sider";
-import React, { useState } from "react";
+import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFile, faFolder } from "@fortawesome/free-regular-svg-icons";
+import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 
 function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
@@ -21,10 +24,10 @@ function Sidebar() {
         defaultSelectedKeys={["1"]}
         style={{ height: "100%", borderRight: 0 }}
       >
-        <Menu.Item key="1" icon={<FolderOpenOutlined />}>
+        <Menu.Item key="1" icon={<FontAwesomeIcon icon={faUserGroup} />}>
           Groups
         </Menu.Item>
-        <Menu.Item key="2" icon={<FileOutlined />}>
+        <Menu.Item key="2" icon={<FontAwesomeIcon icon={faFolder} />}>
           Files
         </Menu.Item>
       </Menu>

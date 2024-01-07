@@ -5,6 +5,8 @@ import GroupCardDropwonMenu from "./GroupCardDropwonMenu";
 import Card from "antd/es/card/Card";
 import { getAllUsers, getUserProfile } from "@/core/actions/users.actions";
 import { getGroup } from "@/core/actions/group.actions";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
 
 async function GroupCard({ group }: { group: Omit<Group, "users"> }) {
   const users = await getAllUsers();
@@ -14,11 +16,13 @@ async function GroupCard({ group }: { group: Omit<Group, "users"> }) {
   return (
     <Card
       cover={
-        <FolderOpenOutlined
+        <FontAwesomeIcon
+          icon={faUserGroup}
           style={{
             fontSize: "64px",
             color: "#8CCA6E",
-            padding: "20px",
+            paddingTop: "30px",
+            paddingBottom: "20px",
           }}
         />
       }
