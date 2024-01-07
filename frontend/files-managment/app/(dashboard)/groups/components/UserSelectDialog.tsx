@@ -19,7 +19,6 @@ export function UserSelectDialog({
     group.users.map((user) => user.id.toString())
   );
 
-  console.log(group.users)
   const handleOk = async () => {
     const userIds = selectedUsers.map((userId) => parseInt(userId));
 

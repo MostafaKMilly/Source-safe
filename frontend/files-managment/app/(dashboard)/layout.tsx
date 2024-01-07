@@ -1,14 +1,10 @@
-import { UserOutlined, LockOutlined } from "@ant-design/icons";
+import { LockOutlined } from "@ant-design/icons";
 import React from "react";
 import "./layout.css";
 import Breadcrumbs from "./components/Breadcrumbs";
 import Sidebar from "./components/Sidebar";
 import Layout, { Content, Footer, Header } from "antd/es/layout/layout";
-import Menu from "antd/es/menu";
-import Avatar from "antd/es/avatar/avatar";
 import { getUserProfile, logoutUser } from "@/core/actions/users.actions";
-import { cookies } from "next/headers";
-import { redirect } from "next/navigation";
 import UserMenu from "./components/UserMenu";
 
 export default async function RootLayout({

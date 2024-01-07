@@ -1,7 +1,7 @@
 import { PlusOutlined } from "@ant-design/icons";
 import Title from "antd/es/typography/Title";
 import Search from "antd/es/input/Search";
-import GroupsCards from "@/app/(dashboard)/components/GroupsCards";
+import GroupsCards from "@/app/(dashboard)/groups/components/GroupsCards";
 import Button from "antd/es/button";
 import GroupsFilterButton from "./components/GroupsFilterButton";
 import { getAllGroups } from "@/core/actions/group.actions";

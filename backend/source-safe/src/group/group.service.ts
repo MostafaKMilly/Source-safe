@@ -227,7 +227,6 @@ export class GroupService {
 
     group.users = users;
     const res = await this.groupRepository.save(group);
-    console.log(res);
     return res;
   }
 
