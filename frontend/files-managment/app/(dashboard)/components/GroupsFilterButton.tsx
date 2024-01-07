@@ -1,49 +1,38 @@
-"use client";
 import React, { useState } from "react";
 import { Button, Menu, Checkbox, Dropdown } from "antd";
 import { FilterOutlined } from "@ant-design/icons";
+import { CheckboxChangeEvent } from "antd/es/checkbox";
 
-function GroupsFilterButton() {
-  const [dropdownVisible, setDropdownVisible] = useState(false);
+interface GroupsFilterButtonProps {
+  onFilterChange: (showOwnerGroups: boolean) => void;
+}
 
-  const handleVisibleChange = (flag: boolean) => {
-    setDropdownVisible(flag);
+const GroupsFilterButton: React.FC<GroupsFilterButtonProps> = ({
+  onFilterChange,
+}) => {
+  const onCheckboxChange = (e: CheckboxChangeEvent) => {
+    e.stopPropagation();
+    onFilterChange(e.target.checked);
   };
-
-  const applyFilter = () => {
-    setDropdownVisible(false);
-  };
-
-  const filterMenu = (
-    <Menu>
-      <Menu.Item>
-        <Checkbox>Created by me</Checkbox>
-      </Menu.Item>
-      <Menu.Divider />
-      <Menu.Item>
-        <Button type="primary" block onClick={applyFilter}>
-          Apply Filter
-        </Button>
-      </Menu.Item>
-    </Menu>
-  );
 
   return (
     <Dropdown
-      overlay={filterMenu}
-      placement="bottomLeft"
+      placement="bottomRight"
       trigger={["click"]}
-      open={dropdownVisible}
-      onOpenChange={handleVisibleChange}
+      menu={{
+        items: [
+          {
+            key: "0",
+            label: (
+              <Checkbox onChange={onCheckboxChange}>Created by me</Checkbox>
+            ),
+          },
+        ],
+      }}
     >
-      <Button
-        icon={<FilterOutlined />}
-        style={{
-          height: 42,
-        }}
-      />
+      <Button icon={<FilterOutlined />} style={{ height: 42 }} />
     </Dropdown>
   );
-}
+};
 
 export default GroupsFilterButton;

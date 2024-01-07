@@ -1,7 +1,9 @@
 import ApiService from "../api/api-service";
+import { User } from "../models/User.model";
 
-export type AuthToken = {
+export type SignInResponse = {
   access_token: string;
+  user: User;
 };
 
 export type SignUpResponse = {
@@ -30,8 +32,8 @@ class AuthService extends ApiService {
     return this.post<SignUpResponse>("/auth/sign-up", userDetails);
   }
 
-  public signIn(loginDetails: SignInDto): Promise<AuthToken> {
-    return this.post<AuthToken>("/auth/sign-in", loginDetails);
+  public signIn(loginDetails: SignInDto): Promise<SignInResponse> {
+    return this.post<SignInResponse>("/auth/sign-in", loginDetails);
   }
 }
 

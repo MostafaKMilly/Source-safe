@@ -18,12 +18,12 @@ import { AuthGuard } from '@nestjs/passport';
 import { AddFileDto } from './dto/add-file.dto';
 
 @Controller('files')
+@UseGuards(AuthGuard('jwt'))
 export class FilesController {
   constructor(private readonly filesService: FilesService) {}
 
   @Post('upload')
   @UseInterceptors(FileInterceptor('file'))
-  @UseGuards(AuthGuard('jwt'))
   async uploadfile(
     @Req() req: AuthRequest,
     @UploadedFile() file: Express.Multer.File,
@@ -36,7 +36,6 @@ export class FilesController {
   }
 
   @Post('check-in')
-  @UseGuards(AuthGuard('jwt'))
   async checkIn(@Req() req: AuthRequest, @Body() checkInData: CheckInDto) {
     const userId = req.user.id;
 
@@ -44,7 +43,6 @@ export class FilesController {
   }
 
   @Post('check-out')
-  @UseGuards(AuthGuard('jwt'))
   async checkOut(@Req() req: AuthRequest, @Body() checkOutData: CheckOutDto) {
     const userId = req.user.id;
 

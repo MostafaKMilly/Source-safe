@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation";
 import { fetchAPIInstanceProps } from "./types";
 import { cookies } from "next/headers";
 
@@ -19,8 +20,7 @@ export default class ApiProvider {
   }
   private async _fetch<T>(config: fetchAPIInstanceProps): Promise<T> {
     const cookieStore = cookies();
-    const token = cookieStore.get("token");
-
+    const token = cookieStore.get("token")?.value;
     const baseURL = this.baseURL;
 
     const response = await fetch(`${baseURL}${config.endpoint}`, {
@@ -35,7 +35,13 @@ export default class ApiProvider {
 
     if (!response.ok) {
       const responseError = await response.json();
-      throw new Error(responseError?.message);
+      switch (response.status) {
+        case 401: {
+          redirect("/login?message=" + responseError.message);
+        }
+        default:
+          throw new Error(responseError?.message);
+      }
     }
 
     const contentType = response.headers.get("content-type");

@@ -1,51 +1,34 @@
 "use client";
-import React from "react";
-import { Card, Col, Row, Menu, Dropdown, Button } from "antd";
+import React, { useState } from "react";
+import { Card, Col, Row, Menu, Dropdown, Button, Empty } from "antd";
 import { EllipsisOutlined, FolderOpenOutlined } from "@ant-design/icons";
+import { Group } from "@/core/models/Group.model";
+import GroupFormDialog from "./GroupFormDialog";
+import GroupsEmpty from "./GroupsEmpty";
+import GroupCard from "./GroupCard";
+import { User } from "@/core/models/User.model";
 
 function GroupsCards({
   groups,
+  currentUser,
 }: {
-  groups: {
-    creationDate: string;
-    description: string;
-    title: string;
-  }[];
+  groups: Group[];
+  currentUser: User;
 }) {
-  // Dropdown menu for card
-  const menu = (
-    <Menu>
-      <Menu.Item key="1">Join</Menu.Item>
-      {/* other items if necessary */}
-    </Menu>
-  );
-
   return (
-    <Row gutter={16} style={{ overflowY: "auto" }}>
-      {groups.map((group, index) => (
-        <Col span={8} key={index}>
-          <Card
-            cover={
-              <FolderOpenOutlined
-                style={{
-                  fontSize: "64px",
-                  color: "#8CCA6E",
-                  padding: "20px",
-                }}
-              />
-            }
-            title={group.title}
-            extra={
-              <Dropdown overlay={menu} trigger={["click"]}>
-                <Button shape="circle" icon={<EllipsisOutlined />} />
-              </Dropdown>
-            }
-          >
-            <p>Creation Date: {group.creationDate}</p>
-            <p>{group.description}</p>
-          </Card>
-        </Col>
-      ))}
+    <Row gutter={16} style={{ overflowY: "auto", height: "100%" }}>
+      {groups.length === 0 ? (
+        <GroupsEmpty />
+      ) : (
+        groups.map((group, index) => (
+          <Col span={8} key={index}>
+            <GroupCard
+              group={group}
+              isOwner={currentUser.id === group.owner.id}
+            />
+          </Col>
+        ))
+      )}
     </Row>
   );
 }

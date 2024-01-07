@@ -1,22 +1,21 @@
-import {
-  PlusOutlined
-} from "@ant-design/icons";
+import { PlusOutlined } from "@ant-design/icons";
 import Title from "antd/es/typography/Title";
 import Search from "antd/es/input/Search";
 import GroupsCards from "@/app/(dashboard)/components/GroupsCards";
 import Button from "antd/es/button";
 import GroupsFilterButton from "./components/GroupsFilterButton";
+import { getAllGroups } from "@/core/actions/group.actions";
+import GroupsToolbar from "./components/GroupsToolbar";
+import { getUserProfile } from "@/core/actions/users.actions";
 
-const groups = [
-  {
-    title: "Group 1",
-    creationDate: "2023-01-01",
-    description: "Description of Group 1",
-  },
-  // ... other groups
-];
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
+  const groups = await getAllGroups(searchParams?.name as string);
+  const currentUser = await getUserProfile();
 
-export default function Home() {
   return (
     <div
       style={{
@@ -37,24 +36,9 @@ export default function Home() {
         <Title level={2} style={{ marginTop: "0px", marginBottom: "16px" }}>
           Groups
         </Title>
-        <div style={{ display: "flex", columnGap: "8px" }}>
-          <Search
-            placeholder="Search groups"
-            style={{ marginBottom: "20px", width: 300 }}
-          />
-          <GroupsFilterButton />
-          <Button
-            icon={<PlusOutlined />}
-            type="primary"
-            style={{
-              height: 42,
-            }}
-          >
-            Add
-          </Button>
-        </div>
+        <GroupsToolbar />
       </div>
-      <GroupsCards groups={groups} />
+      <GroupsCards groups={groups} currentUser={currentUser} />
     </div>
   );
 }
