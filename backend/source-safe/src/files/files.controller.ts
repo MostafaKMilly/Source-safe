@@ -15,6 +15,7 @@ import { CheckOutDto } from './dto/checkout-file.dto';
 import { AuthRequest } from 'src/auth/jwt-payload.interface';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { AuthGuard } from '@nestjs/passport';
+import { AddFileDto } from './dto/add-file.dto';
 
 @Controller('files')
 @UseGuards(AuthGuard('jwt'))
@@ -26,9 +27,12 @@ export class FilesController {
   async uploadfile(
     @Req() req: AuthRequest,
     @UploadedFile() file: Express.Multer.File,
+    @Body() uploadData: AddFileDto,
   ) {
     const userId = req.user.id;
-    return this.filesService.uploadFile(file, userId);
+    console.log(uploadData);
+
+    return this.filesService.uploadFile(file, userId, uploadData);
   }
 
   @Post('check-in')

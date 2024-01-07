@@ -56,7 +56,7 @@ export class GroupService {
 
     return await this.groupRepository.find({
       where: whereConditions.length > 0 ? whereConditions : {},
-      relations: ['owner'],
+      relations: ['owner', 'users'],
     });
   }
 
@@ -180,5 +180,14 @@ export class GroupService {
       id: existingUser.id,
       username: existingUser.username,
     };
+  }
+
+  async findGroupByUser(groupId: number) {
+    const groups = (await this.findAll()).filter((group) => {
+      if (group.users.findIndex((item) => item.id === groupId) !== -1) {
+        return group;
+      }
+    });
+    return groups;
   }
 }

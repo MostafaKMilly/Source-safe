@@ -6,10 +6,12 @@ import { User } from 'src/users/user.entity';
 import { File } from './file.entity';
 import { HistoryService } from 'src/history/history.service';
 import { History } from 'src/history/history.entity';
+import { Group } from 'src/group/group.entity';
+import { GroupService } from 'src/group/group.service';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([File, User, History])],
-  providers: [FilesService, HistoryService],
+  imports: [TypeOrmModule.forFeature([File, User, History, Group])],
+  providers: [FilesService, HistoryService, GroupService],
   controllers: [FilesController],
 })
 export class FilesModule {}

@@ -27,6 +27,7 @@ export class GroupController {
   constructor(private readonly groupService: GroupService) {}
 
   @Post('create')
+  @UseGuards(AuthGuard('jwt'))
   async create(
     @Req() req: AuthRequest,
     @Body() createGroupDto: CreateGroupDto,

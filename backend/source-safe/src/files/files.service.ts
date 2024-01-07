@@ -1,4 +1,8 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  NotAcceptableException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { File } from './file.entity'; // Adjust this import based on your project structure
@@ -6,6 +10,9 @@ import { User } from 'src/users/user.entity';
 import * as fs from 'fs';
 import * as path from 'path';
 import { HistoryService } from 'src/history/history.service';
+import { Group } from 'src/group/group.entity';
+import { AddFileDto } from './dto/add-file.dto';
+import { GroupService } from 'src/group/group.service';
 
 @Injectable()
 export class FilesService {
@@ -14,10 +21,17 @@ export class FilesService {
     private fileRepository: Repository<File>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Group)
+    private groupRepository: Repository<Group>,
     private readonly historyService: HistoryService,
+    private readonly groupService: GroupService,
   ) {}
 
-  async uploadFile(file: Express.Multer.File, userId: number): Promise<File> {
+  async uploadFile(
+    file: Express.Multer.File,
+    userId: number,
+    uploadData: AddFileDto,
+  ): Promise<File> {
     const filePath = this.saveFileOnServer(file);
     const user = await this.userRepository.findOne({
       where: [
@@ -26,6 +40,17 @@ export class FilesService {
         },
       ],
     });
+
+    const group = await this.groupRepository.find({
+      where: {
+        id: In(uploadData.groupId),
+      },
+    });
+
+    if (group.length === 0) {
+      throw new NotAcceptableException('the group you selected not found');
+    }
+
     if (!user) {
       throw new NotFoundException('User not found');
     }
@@ -34,6 +59,7 @@ export class FilesService {
       path: filePath,
       uploadedBy: user,
       status: 'free',
+      group: group,
     });
     await this.fileRepository.save(newFile);
     if (newFile) {
@@ -49,20 +75,15 @@ export class FilesService {
     if (!fs.existsSync(uploadDirectory)) {
       fs.mkdirSync(uploadDirectory, { recursive: true });
     }
-
     const filename = this.generateUniqueFilename(file.originalname);
-
     const filePath = path.join(uploadDirectory, filename);
-
     fs.writeFileSync(filePath, file.buffer);
-
     return filePath;
   }
 
   private generateUniqueFilename(originalName: string): string {
     const ext = path.extname(originalName);
     const name = path.basename(originalName, ext) + '-' + Date.now() + ext;
-
     return name;
   }
 
@@ -77,12 +98,32 @@ export class FilesService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const files = await this.fileRepository.findBy({
-      id: In(fileIds),
+
+    const UserGroup = await this.checkIfUserInGroup(userId);
+    console.log(UserGroup);
+
+    const files = await this.fileRepository.find({
+      relations: ['group'],
+      where: {
+        id: In(fileIds),
+      },
     });
-    files.forEach(async (file) => {
+
+    console.log(files);
+
+    files?.forEach(async (file) => {
       if (file.status !== 'free') {
-        throw new Error(`File ${file.id} is not available for check-in`);
+        throw new NotAcceptableException(
+          `File ${file.id} is not available for check-in`,
+        );
+      }
+      const filePermission = UserGroup.some((item) => {
+        return file.group.findIndex((data) => data.id === item) !== -1
+          ? true
+          : false;
+      });
+      if (!filePermission) {
+        throw new Error('User does not have permission to check out this file');
       }
       file.lockedBy = user;
       file.status = 'checked-out';
@@ -90,7 +131,6 @@ export class FilesService {
         file: file,
       });
     });
-
     await this.fileRepository.save(files);
   }
 
@@ -144,7 +184,7 @@ export class FilesService {
 
   async getAllFiles(): Promise<File[]> {
     return this.fileRepository.find({
-      relations: ['lockedBy', 'uploadedBy'],
+      relations: ['lockedBy', 'uploadedBy', 'group'],
       select: {
         lockedBy: {
           username: true,
@@ -158,5 +198,10 @@ export class FilesService {
         },
       },
     });
+  }
+
+  private async checkIfUserInGroup(userId: number) {
+    const UserGroup = await this.groupService.findGroupByUser(userId);
+    return UserGroup.map((group) => group.id);
   }
 }
