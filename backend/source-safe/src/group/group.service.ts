@@ -31,6 +31,7 @@ export class GroupService {
       throw new HttpException(`Owner not found`, HttpStatus.NOT_FOUND);
 
     group.owner = owner;
+    group.users = [owner];
     return await this.groupRepository.save(group);
   }
 
@@ -42,6 +43,8 @@ export class GroupService {
     },
   ): Promise<Array<Group>> {
     const whereConditions = [];
+
+    whereConditions.push({ users: { id: userId } });
 
     if (query?.name) {
       whereConditions.push({ name: ILike(`%${query.name}%`) });

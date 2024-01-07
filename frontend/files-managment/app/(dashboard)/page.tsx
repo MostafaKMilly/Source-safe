@@ -6,6 +6,7 @@ import Button from "antd/es/button";
 import GroupsFilterButton from "./components/GroupsFilterButton";
 import { getAllGroups } from "@/core/actions/group.actions";
 import GroupsToolbar from "./components/GroupsToolbar";
+import { getUserProfile } from "@/core/actions/users.actions";
 
 export default async function Home({
   searchParams,
@@ -13,6 +14,7 @@ export default async function Home({
   searchParams?: { [key: string]: string | string[] | undefined };
 }) {
   const groups = await getAllGroups(searchParams?.name as string);
+  const currentUser = await getUserProfile();
 
   return (
     <div
@@ -36,7 +38,7 @@ export default async function Home({
         </Title>
         <GroupsToolbar />
       </div>
-      <GroupsCards groups={groups} />
+      <GroupsCards groups={groups} currentUser={currentUser} />
     </div>
   );
 }
