@@ -2,7 +2,7 @@ import { HttpException, HttpStatus, Injectable } from '@nestjs/common';
 import { CreateGroupDto } from './dto/create-group.dto';
 import { UpdateGroupDto } from './dto/update-group.dto';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { ILike, Repository } from 'typeorm';
 import { Group } from './group.entity';
 import { AddUserDto } from './dto/add-user.dto';
 import { User } from 'src/users/user.entity';
@@ -34,8 +34,27 @@ export class GroupService {
     return await this.groupRepository.save(group);
   }
 
-  async findAll(): Promise<Array<Group>> {
-    return await this.groupRepository.find();
+  async findAll(
+    userId: number,
+    query?: {
+      name?: string;
+      showOwnerGroups?: boolean;
+    },
+  ): Promise<Array<Group>> {
+    const whereConditions = [];
+
+    if (query?.name) {
+      whereConditions.push({ name: ILike(`%${query.name}%`) });
+    }
+
+    if (query?.showOwnerGroups) {
+      whereConditions.push({ owner: { id: userId } });
+    }
+
+    return await this.groupRepository.find({
+      where: whereConditions.length > 0 ? whereConditions : {},
+      relations: ['owner'],
+    });
   }
 
   async findOne(id: number): Promise<Group> {

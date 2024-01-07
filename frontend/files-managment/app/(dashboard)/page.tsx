@@ -7,8 +7,12 @@ import GroupsFilterButton from "./components/GroupsFilterButton";
 import { getAllGroups } from "@/core/actions/group.actions";
 import GroupsToolbar from "./components/GroupsToolbar";
 
-export default async function Home() {
-  const groups = await getAllGroups();
+export default async function Home({
+  searchParams,
+}: {
+  searchParams?: { [key: string]: string | string[] | undefined };
+}) {
+  const groups = await getAllGroups(searchParams?.name as string);
 
   return (
     <div

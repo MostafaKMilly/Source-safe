@@ -1,7 +1,6 @@
 import { redirect } from "next/navigation";
 import { fetchAPIInstanceProps } from "./types";
 import { cookies } from "next/headers";
-import { logoutUser } from "../actions/users.actions";
 
 export default class ApiProvider {
   private baseURL: string;

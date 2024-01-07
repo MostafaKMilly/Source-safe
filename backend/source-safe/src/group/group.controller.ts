@@ -8,6 +8,7 @@ import {
   Delete,
   Req,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { GroupService } from './group.service';
 import { CreateGroupDto } from './dto/create-group.dto';
@@ -35,8 +36,12 @@ export class GroupController {
   }
 
   @Get('getAll')
-  async findAll(): Promise<Array<Group>> {
-    return await this.groupService.findAll();
+  async findAll(
+    @Req() req: AuthRequest,
+    @Query() query?: { name?: string; showOwnerGroups?: boolean },
+  ): Promise<Array<Group>> {
+    const userId = req.user.id;
+    return await this.groupService.findAll(userId, query);
   }
 
   @Get(':id')
