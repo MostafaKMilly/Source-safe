@@ -31,11 +31,16 @@ export class GroupService {
       throw new HttpException(`Owner not found`, HttpStatus.NOT_FOUND);
 
     group.owner = owner;
-    return await this.groupRepository.save(group);
+    return await this.groupRepository.save({
+      ...group,
+      users: [owner],
+    });
   }
 
   async findAll(): Promise<Array<Group>> {
-    return await this.groupRepository.find();
+    return await this.groupRepository.find({
+      relations: ['users'],
+    });
   }
 
   async findOne(id: number): Promise<Group> {
@@ -158,5 +163,14 @@ export class GroupService {
       id: existingUser.id,
       username: existingUser.username,
     };
+  }
+
+  async findGroupByUser(groupId: number) {
+    const groups = (await this.findAll()).filter((group) => {
+      if (group.users.findIndex((item) => item.id === groupId) !== -1) {
+        return group;
+      }
+    });
+    return groups;
   }
 }

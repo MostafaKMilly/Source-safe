@@ -1,3 +1,4 @@
+import { Group } from 'src/group/group.entity';
 import { History } from 'src/history/history.entity';
 import { User } from 'src/users/user.entity';
 import {
@@ -37,6 +38,13 @@ export class File {
     nullable: true,
   })
   history: Array<History>;
+
+  @JoinTable()
+  @ManyToMany(() => Group, (group) => group.file, {
+    cascade: true,
+    nullable: true,
+  })
+  group: Array<Group>;
 
   @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
