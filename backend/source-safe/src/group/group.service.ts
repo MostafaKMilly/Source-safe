@@ -56,7 +56,7 @@ export class GroupService {
 
     return await this.groupRepository.find({
       where: whereConditions.length > 0 ? whereConditions : {},
-      relations: ['owner'],
+      relations: ['owner', 'users'],
     });
   }
 

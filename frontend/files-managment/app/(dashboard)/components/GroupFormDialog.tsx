@@ -3,23 +3,23 @@ import { Dispatch, SetStateAction, useState } from "react";
 import { Modal, Form, Input } from "antd";
 import { CreateGroupDto, UpdateGroupDto } from "@/core/services/group.service";
 import { createGroup, updateGroup } from "@/core/actions/group.actions";
+import { Group } from "@/core/models/Group.model";
 
 function GroupFormDialog({
-  groupId,
+  group,
   isModalVisible,
   setIsModalVisible,
 }: {
-  groupId?: number;
+  group?: Group;
   setIsModalVisible: Dispatch<SetStateAction<boolean>>;
   isModalVisible: boolean;
 }) {
   const [form] = Form.useForm();
 
   const handleSubmit = async (values: UpdateGroupDto | CreateGroupDto) => {
-    if (groupId) {
-      await updateGroup(groupId, values);
+    if (group) {
+      await updateGroup(group.id, values);
     } else {
-      // Create new group
       await createGroup(values as CreateGroupDto);
     }
     setIsModalVisible(false);
@@ -27,13 +27,20 @@ function GroupFormDialog({
 
   return (
     <Modal
-      title={groupId ? "Update Group" : "Create Group"}
+      title={group ? "Update Group" : "Create Group"}
       open={isModalVisible}
       onOk={form.submit}
       onCancel={() => setIsModalVisible(false)}
       centered
     >
-      <Form form={form} onFinish={handleSubmit}>
+      <Form
+        form={form}
+        onFinish={handleSubmit}
+        initialValues={{
+          name: group?.name,
+          description: group?.description,
+        }}
+      >
         <Form.Item
           name="name"
           label="Group Name"
