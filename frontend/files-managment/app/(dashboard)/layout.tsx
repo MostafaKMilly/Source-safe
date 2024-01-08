@@ -38,8 +38,8 @@ export default async function RootLayout({
       </Header>
       <Layout style={{ flexDirection: "row" }}>
         <Sidebar />
-        <Layout style={{ padding: "0 24px 24px" }}>
-          <Breadcrumbs />
+        <Layout style={{ padding: "24px" }}>
+          {/* <Breadcrumbs /> */}
           <Content
             className="site-layout-background"
             style={{

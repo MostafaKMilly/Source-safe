@@ -7,6 +7,7 @@ import { getAllUsers, getUserProfile } from "@/core/actions/users.actions";
 import { getGroup } from "@/core/actions/group.actions";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
+import { redirect } from "next/navigation";
 
 async function GroupCard({ group }: { group: Omit<Group, "users"> }) {
   const users = await getAllUsers();
@@ -15,6 +16,10 @@ async function GroupCard({ group }: { group: Omit<Group, "users"> }) {
 
   return (
     <Card
+      hoverable
+      style={{
+        cursor: "pointer",
+      }}
       cover={
         <FontAwesomeIcon
           icon={faUserGroup}
@@ -23,6 +28,8 @@ async function GroupCard({ group }: { group: Omit<Group, "users"> }) {
             color: "#8CCA6E",
             paddingTop: "30px",
             paddingBottom: "20px",
+            width: "80px",
+            margin: "0 auto",
           }}
         />
       }

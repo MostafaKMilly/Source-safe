@@ -6,6 +6,7 @@ import { User } from 'src/users/user.entity';
 import * as fs from 'fs';
 import * as path from 'path';
 import { HistoryService } from 'src/history/history.service';
+import { Group } from 'src/group/group.entity';
 
 @Injectable()
 export class FilesService {
@@ -15,9 +16,15 @@ export class FilesService {
     @InjectRepository(User)
     private userRepository: Repository<User>,
     private readonly historyService: HistoryService,
+    @InjectRepository(Group)
+    private groupRepository: Repository<Group>,
   ) {}
 
-  async uploadFile(file: Express.Multer.File, userId: number): Promise<File> {
+  async uploadFile(
+    file: Express.Multer.File,
+    userId: number,
+    groupId: number,
+  ): Promise<File> {
     const filePath = this.saveFileOnServer(file);
     const user = await this.userRepository.findOne({
       where: [
@@ -29,13 +36,23 @@ export class FilesService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    const group = await this.groupRepository.findOne({
+      where: { id: groupId },
+    });
+    if (!group) {
+      throw new NotFoundException(`Group with ID ${groupId} not found`);
+    }
+
     const newFile = this.fileRepository.create({
       name: file.originalname,
       path: filePath,
       uploadedBy: user,
       status: 'free',
+      group: group,
     });
+
     await this.fileRepository.save(newFile);
+
     if (newFile) {
       this.historyService.create({
         file: newFile,
@@ -135,6 +152,7 @@ export class FilesService {
       where: {
         id,
       },
+      relations: ['lockedBy', 'uploadedBy', 'group'],
     });
     if (!file) {
       throw new NotFoundException(`File with ID ${id} not found`);
@@ -144,11 +162,11 @@ export class FilesService {
 
   async getAllFiles(): Promise<File[]> {
     return this.fileRepository.find({
-      relations: ['lockedBy', 'uploadedBy'],
+      relations: ['lockedBy', 'uploadedBy', 'group'],
       select: {
         lockedBy: {
           username: true,
-          id: true,
+        id: true,
           email: true,
         },
         uploadedBy: {

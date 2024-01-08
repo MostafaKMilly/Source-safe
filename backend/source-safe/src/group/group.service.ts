@@ -60,7 +60,7 @@ export class GroupService {
 
     return await this.groupRepository.find({
       where: whereConditions,
-      relations: ['owner'],
+      relations: ['owner', 'files'],
     });
   }
 

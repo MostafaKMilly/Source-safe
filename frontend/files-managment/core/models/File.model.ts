@@ -1,3 +1,4 @@
+import { Group } from "./Group.model";
 import { History } from "./History.model";
 import { User } from "./User.model";
 
@@ -11,4 +12,5 @@ export type File = {
   history: History[];
   createdAt: Date;
   updatedAt: Date;
+  group: Group;
 };

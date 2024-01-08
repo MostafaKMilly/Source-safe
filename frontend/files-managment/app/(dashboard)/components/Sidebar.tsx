@@ -24,10 +24,32 @@ function Sidebar() {
         defaultSelectedKeys={["1"]}
         style={{ height: "100%", borderRight: 0 }}
       >
-        <Menu.Item key="1" icon={<FontAwesomeIcon icon={faUserGroup} />}>
+        <Menu.Item
+          key="1"
+          icon={
+            <FontAwesomeIcon
+              icon={faUserGroup}
+              style={{
+                width: "15px",
+                margin: "0 auto",
+              }}
+            />
+          }
+        >
           Groups
         </Menu.Item>
-        <Menu.Item key="2" icon={<FontAwesomeIcon icon={faFolder} />}>
+        <Menu.Item
+          key="2"
+          icon={
+            <FontAwesomeIcon
+              icon={faFolder}
+              style={{
+                width: "15px",
+                margin: "0 auto",
+              }}
+            />
+          }
+        >
           Files
         </Menu.Item>
       </Menu>

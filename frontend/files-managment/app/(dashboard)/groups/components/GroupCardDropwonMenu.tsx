@@ -13,6 +13,9 @@ import React, { useState } from "react";
 import GroupFormDialog from "./GroupFormDialog";
 import { UserSelectDialog } from "./UserSelectDialog";
 import { User } from "@/core/models/User.model";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faFolder } from "@fortawesome/free-regular-svg-icons";
+import { useRouter } from "next/navigation";
 
 function GroupCardDropwonMenu({
   isOwner,
@@ -25,6 +28,7 @@ function GroupCardDropwonMenu({
 }) {
   const [isModalVisible, setIsModalVisible] = useState(false);
   const [isUserSelectVisible, setIsUserSelectVisible] = useState(false);
+  const router = useRouter();
 
   const showDeleteConfirm = () => {
     Modal.confirm({
@@ -52,8 +56,19 @@ function GroupCardDropwonMenu({
     });
   };
 
+  const handleGroupCick = () => {
+    router.push("/groups/" + group.id);
+  };
+
   const ownerMenu = (
     <Menu>
+      <Menu.Item
+        key="files"
+        icon={<FontAwesomeIcon icon={faFolder} />}
+        onClick={handleGroupCick}
+      >
+        Files
+      </Menu.Item>
       <Menu.Item
         key="delete"
         icon={<DeleteOutlined />}
@@ -82,6 +97,13 @@ function GroupCardDropwonMenu({
 
   const memberMenu = (
     <Menu>
+      <Menu.Item
+        key="files"
+        icon={<FontAwesomeIcon icon={faFolder} />}
+        onClick={handleGroupCick}
+      >
+        Files
+      </Menu.Item>
       <Menu.Item
         key="leave"
         icon={<LogoutOutlined />}

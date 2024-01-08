@@ -1,3 +1,4 @@
+import { Group } from 'src/group/group.entity';
 import { History } from 'src/history/history.entity';
 import { User } from 'src/users/user.entity';
 import {
@@ -43,4 +44,8 @@ export class File {
 
   @Column({ type: 'timestamp', onUpdate: 'CURRENT_TIMESTAMP', nullable: true })
   updatedAt: Date;
+
+  @ManyToOne(() => Group, (group) => group.files)
+  @JoinColumn({ name: 'groupId' })
+  group: Group;
 }

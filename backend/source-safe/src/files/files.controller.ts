@@ -8,6 +8,7 @@ import {
   UseInterceptors,
   UploadedFile,
   UseGuards,
+  Query,
 } from '@nestjs/common';
 import { FilesService } from './files.service';
 import { CheckInDto } from './dto/check-file.dto';
@@ -26,9 +27,10 @@ export class FilesController {
   async uploadfile(
     @Req() req: AuthRequest,
     @UploadedFile() file: Express.Multer.File,
+    @Query('groupId') groupId,
   ) {
     const userId = req.user.id;
-    return this.filesService.uploadFile(file, userId);
+    return this.filesService.uploadFile(file, userId, Number(groupId));
   }
 
   @Post('check-in')

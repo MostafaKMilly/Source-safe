@@ -1,3 +1,4 @@
+import { File } from "./File.model";
 import { User } from "./User.model";
 
 export type Group = {
@@ -8,4 +9,5 @@ export type Group = {
   updatedAt: string;
   users: User[];
   owner: User;
+  files: File[];
 };
