@@ -4,13 +4,14 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, In, Like, Repository } from 'typeorm';
+import { FindOptionsWhere, In, LessThan, Like, Repository } from 'typeorm';
 import { File } from './file.entity';
 import { User } from 'src/users/user.entity';
 import * as fs from 'fs';
 import * as path from 'path';
 import { HistoryService } from 'src/history/history.service';
 import { Group } from 'src/group/group.entity';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class FilesService {
@@ -23,6 +24,25 @@ export class FilesService {
     @InjectRepository(Group)
     private groupRepository: Repository<Group>,
   ) {}
+
+  @Cron('*/1 * * * *') // Runs every 10 minutes
+  async releaseCheckedOutFiles() {
+    const tenMinutesAgo = new Date(Date.now() - 10 * 60000);
+    const checkedOutFiles = await this.fileRepository.find({
+      where: {
+        status: 'checked-out',
+        updatedAt: LessThan(tenMinutesAgo),
+      },
+    });
+
+    if (checkedOutFiles.length > 0) {
+      for (const file of checkedOutFiles) {
+        file.status = 'free';
+        file.lockedBy = null;
+      }
+      await this.fileRepository.save(checkedOutFiles);
+    }
+  }
 
   async uploadFile(
     file: Express.Multer.File,
@@ -55,6 +75,7 @@ export class FilesService {
       group: group,
     });
 
+    newFile.updatedAt = new Date();
     await this.fileRepository.save(newFile);
 
     if (newFile) {
@@ -94,6 +115,7 @@ export class FilesService {
     file.name = updatedFile.originalname;
     file.path = filePath;
 
+    file.updatedAt = new Date();
     const updated = await this.fileRepository.save(file);
 
     await this.historyService.create({
@@ -153,6 +175,7 @@ export class FilesService {
       }
       file.lockedBy = user;
       file.status = 'checked-out';
+      file.updatedAt = new Date();
       await this.historyService.create({
         file: file,
       });
@@ -182,6 +205,7 @@ export class FilesService {
       });
     }
 
+    file.updatedAt = new Date();
     return await this.fileRepository.save(file);
   }
 
