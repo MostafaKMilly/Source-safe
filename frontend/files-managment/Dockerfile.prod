@@ -9,7 +9,6 @@ COPY ./frontend/files-managment .
 
 RUN npm run build
 
-
 FROM node:20 AS runner
 WORKDIR /frontend
 
@@ -18,4 +17,6 @@ COPY --from=builder /frontend/public ./public
 COPY --from=builder /frontend/node_modules ./node_modules
 COPY --from=builder /frontend/package.json ./
 
-CMD npm start
+COPY ./frontend/files-managment/.env ./.env
+
+CMD ["npm", "start"]
