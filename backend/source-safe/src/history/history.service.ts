@@ -53,4 +53,28 @@ export class HistoryService {
       relations: ['file', 'file.uploadedBy', 'file.lockedBy'],
     });
   }
+
+  async findOneByFileId(fileId: number) {
+    return await this.historyRepository.findOne({
+      where: {
+        file: {
+          id: fileId,
+        },
+      },
+      relations: ['file', 'file.uploadedBy', 'file.lockedBy'],
+    });
+  }
+
+  async findAllLockedByUser(userId: number) {
+    return await this.historyRepository.find({
+      where: {
+        file: {
+          lockedBy: {
+            id: userId,
+          },
+        },
+      },
+      relations: ['file', 'file.uploadedBy', 'file.lockedBy'],
+    });
+  }
 }

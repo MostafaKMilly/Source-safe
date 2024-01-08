@@ -17,13 +17,13 @@ export class HistoryController {
     return await this.historyService.findOne(+id);
   }
 
-  // @Patch(':id')
-  // update(@Param('id') id: string, @Body() updateHistoryDto: UpdateHistoryDto) {
-  //   return this.historyService.update(+id, updateHistoryDto);
-  // }
+  @Get('/file/:fileId')
+  async findOneByFileId(@Param('fileId') fileId: string) {
+    return await this.historyService.findOneByFileId(+fileId);
+  }
 
-  // @Delete(':id')
-  // remove(@Param('id') id: string) {
-  //   return this.historyService.remove(+id);
-  // }
+  @Get('/locked-by-user/:userId')
+  async findAllLockedByUser(@Param('userId') userId: string) {
+    return await this.historyService.findAllLockedByUser(+userId);
+  }
 }

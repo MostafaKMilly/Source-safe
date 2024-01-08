@@ -1,14 +1,14 @@
 "use client";
-import { FileOutlined } from "@ant-design/icons";
 import { Menu } from "antd";
 import Sider from "antd/es/layout/Sider";
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faFile, faFolder } from "@fortawesome/free-regular-svg-icons";
-import { faUserGroup } from "@fortawesome/free-solid-svg-icons";
+import { faHistory, faUserGroup } from "@fortawesome/free-solid-svg-icons";
+import { useRouter } from "next/navigation";
 
 function Sidebar() {
   const [collapsed, setCollapsed] = useState(false);
+  const router = useRouter();
 
   return (
     <Sider
@@ -25,6 +25,9 @@ function Sidebar() {
         style={{ height: "100%", borderRight: 0 }}
       >
         <Menu.Item
+          onClick={() => {
+            router.push("/groups");
+          }}
           key="1"
           icon={
             <FontAwesomeIcon
@@ -39,10 +42,13 @@ function Sidebar() {
           Groups
         </Menu.Item>
         <Menu.Item
+          onClick={() => {
+            router.push("/history");
+          }}
           key="2"
           icon={
             <FontAwesomeIcon
-              icon={faFolder}
+              icon={faHistory}
               style={{
                 width: "15px",
                 margin: "0 auto",
@@ -50,7 +56,7 @@ function Sidebar() {
             />
           }
         >
-          Files
+          History
         </Menu.Item>
       </Menu>
     </Sider>
