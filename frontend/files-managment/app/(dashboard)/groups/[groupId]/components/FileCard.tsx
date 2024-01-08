@@ -8,6 +8,7 @@ import {
   CheckCircleOutlined,
   CloseCircleOutlined,
   EllipsisOutlined,
+  DownloadOutlined,
 } from "@ant-design/icons";
 import { File } from "@/core/models/File.model";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
@@ -16,11 +17,14 @@ import moment from "moment";
 import { User } from "@/core/models/User.model";
 import { checkInFile, checkOutFile } from "@/core/actions/files.actions";
 import FileUploadDialog from "./FileUploadDialog";
+import { useRouter } from "next/navigation";
 
 type FileCardProps = {
   file: File;
   currentUser: User;
 };
+
+const API_LINK = process.env.NEXT_PUBLIC_API_URI;
 
 function getFileIcon(ext: string) {
   switch (ext.toLowerCase()) {
@@ -63,6 +67,17 @@ function FileCard({ file, currentUser }: FileCardProps) {
   const [updateFileVisisble, setUpdateFileVisisble] = useState(false);
   const isFileCheckedOut = file.status === "checked-out";
   const isCurrentUserOwner = file.lockedBy?.id === currentUser.id;
+  const router = useRouter();
+
+  const handleDownload = () => {
+    const fileUrl = `${API_LINK}/${file.path}`;
+    const anchor = document.createElement("a");
+    anchor.href = fileUrl;
+    anchor.download = file.name;
+    document.body.appendChild(anchor);
+    anchor.click();
+    document.body.removeChild(anchor);
+  };
 
   const handleCheckIn = async () => {
     try {
@@ -119,8 +134,17 @@ function FileCard({ file, currentUser }: FileCardProps) {
       >
         Edit
       </Menu.Item>
-      <Menu.Item key="4" icon={<HistoryOutlined />}>
+      <Menu.Item
+        key="4"
+        icon={<HistoryOutlined />}
+        onClick={() => {
+          router.push("/history?fileId=" + file.id);
+        }}
+      >
         History
+      </Menu.Item>
+      <Menu.Item key="5" icon={<DownloadOutlined />} onClick={handleDownload}>
+        Download
       </Menu.Item>
     </Menu>
   );
@@ -142,7 +166,7 @@ function FileCard({ file, currentUser }: FileCardProps) {
         </div>
       }
       extra={
-        <Dropdown overlay={menu}>
+        <Dropdown overlay={menu} trigger={["click"]}>
           <Button shape="circle" icon={<EllipsisOutlined />} />
         </Dropdown>
       }

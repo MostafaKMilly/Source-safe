@@ -11,6 +11,8 @@ import { GroupModule } from './group/group.module';
 import { Group } from './group/group.entity';
 import { HistoryModule } from './history/history.module';
 import { History } from './history/history.entity';
+import { ServeStaticModule } from '@nestjs/serve-static';
+import { join } from 'path';
 
 @Module({
   imports: [
@@ -28,6 +30,11 @@ import { History } from './history/history.entity';
       synchronize: true,
     }),
     ConfigModule.forRoot(),
+    ServeStaticModule.forRoot({
+      rootPath: join(__dirname, '..', 'uploads'),
+      serveRoot: '/uploads',
+      renderPath: undefined,
+    }),
     AuthModule,
     UsersModule,
     FilesModule,
