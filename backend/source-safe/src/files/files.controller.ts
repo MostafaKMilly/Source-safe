@@ -65,4 +65,15 @@ export class FilesController {
   ) {
     return this.filesService.getAllFiles(groupId, name);
   }
+
+  @Post('update/:fileId')
+  @UseInterceptors(FileInterceptor('file'))
+  async updateFile(
+    @Req() req: AuthRequest,
+    @Param('fileId') fileId: number,
+    @UploadedFile() updatedFile: Express.Multer.File,
+  ): Promise<{ message: string }> {
+    const userId = req.user.id;
+    return this.filesService.updateFile(updatedFile, userId, fileId);
+  }
 }

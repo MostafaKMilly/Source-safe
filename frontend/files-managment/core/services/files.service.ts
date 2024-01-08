@@ -22,6 +22,17 @@ class FilesService extends ApiService {
     );
   }
 
+  public updateFile(fileId: number, data: FormData): Promise<boolean> {
+    return this.post<boolean>(
+      `/files/update/${fileId}`,
+      data,
+      {
+        body: data,
+      },
+      true
+    );
+  }
+
   public checkIn(details: CheckInFileDto): Promise<boolean> {
     return this.post<boolean>("/files/check-in", details);
   }

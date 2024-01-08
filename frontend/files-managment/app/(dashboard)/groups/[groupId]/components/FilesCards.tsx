@@ -4,12 +4,15 @@ import Col from "antd/es/col";
 import FilesEmpty from "./FilesEmpty";
 import { File } from "@/core/models/File.model";
 import FileCard from "./FileCard";
+import { getUserProfile } from "@/core/actions/users.actions";
 
 type FilesCardsProps = {
   files: File[];
 };
 
-function FilesCards({ files }: FilesCardsProps) {
+async function FilesCards({ files }: FilesCardsProps) {
+  const currentUser = await getUserProfile();
+
   return (
     <Row
       gutter={16}
@@ -20,7 +23,7 @@ function FilesCards({ files }: FilesCardsProps) {
       ) : (
         files.map((file, index) => (
           <Col span={8} key={index}>
-            <FileCard file={file} />
+            <FileCard file={file} currentUser={currentUser} />
           </Col>
         ))
       )}

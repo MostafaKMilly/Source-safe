@@ -1,8 +1,7 @@
-"use client";
 import React, { useState } from "react";
 import { Modal, Upload, message } from "antd";
 import { InboxOutlined } from "@ant-design/icons";
-import { uploadFile } from "@/core/actions/files.actions";
+import { uploadFile, updateFile } from "@/core/actions/files.actions";
 import { DraggerProps, RcFile } from "antd/es/upload";
 
 const { Dragger } = Upload;
@@ -11,12 +10,14 @@ type FileUploadDialogProps = {
   isVisible: boolean;
   setIsVisible: (visible: boolean) => void;
   groupId: number;
+  fileId?: number;
 };
 
 const FileUploadDialog = ({
   isVisible,
   setIsVisible,
   groupId,
+  fileId,
 }: FileUploadDialogProps) => {
   const [fileList, setFileList] = useState<RcFile[]>([]);
 
@@ -26,14 +27,19 @@ const FileUploadDialog = ({
       const formData = new FormData();
       formData.append("file", file);
 
-      const response = await uploadFile(formData, groupId.toString());
-      message.success("File uploaded successfully");
+      if (fileId) {
+        await updateFile(formData, fileId);
+        message.success("File updated successfully");
+      } else {
+        await uploadFile(formData, groupId.toString());
+        message.success("File uploaded successfully");
+      }
 
       setFileList([]);
       setIsVisible(false);
     } catch (error) {
-      message.error("Upload failed");
-      console.error("Error uploading file:", error);
+      message.error("Operation failed");
+      console.error("Error:", error);
     }
   };
 
@@ -57,11 +63,11 @@ const FileUploadDialog = ({
 
   return (
     <Modal
-      title="Upload File"
+      title={fileId ? "Update File" : "Upload File"}
       open={isVisible}
       onOk={handleOk}
       onCancel={handleCancel}
-      okText="Upload"
+      okText={fileId ? "Update" : "Upload"}
     >
       <Dragger {...props}>
         <p className="ant-upload-drag-icon">

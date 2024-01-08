@@ -1,7 +1,11 @@
-import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
+import {
+  Injectable,
+  NotFoundException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { FindOptionsWhere, In, Like, Repository } from 'typeorm';
-import { File } from './file.entity'; // Adjust this import based on your project structure
+import { File } from './file.entity';
 import { User } from 'src/users/user.entity';
 import * as fs from 'fs';
 import * as path from 'path';
@@ -60,6 +64,44 @@ export class FilesService {
     }
     return { message: 'File saved successfully' };
   }
+  async updateFile(
+    updatedFile: Express.Multer.File,
+    userId: number,
+    fileId: number,
+  ): Promise<{ message: string }> {
+    const filePath = this.saveFileOnServer(updatedFile);
+
+    const user = await this.userRepository.findOneBy({ id: userId });
+    if (!user) {
+      throw new NotFoundException('User not found');
+    }
+
+    const file = await this.fileRepository.findOne({
+      where: { id: fileId },
+      relations: ['lockedBy'],
+    });
+
+    if (!file) {
+      throw new NotFoundException('File not found');
+    }
+
+    if (file.status !== 'checked-out' || file.lockedBy.id !== userId) {
+      throw new UnauthorizedException(
+        'File is not checked-out or not locked by the current user',
+      );
+    }
+
+    file.name = updatedFile.originalname;
+    file.path = filePath;
+
+    const updated = await this.fileRepository.save(file);
+
+    await this.historyService.create({
+      file: updated,
+    });
+
+    return { message: 'File updated successfully' };
+  }
 
   private saveFileOnServer(file: Express.Multer.File): string {
     const uploadDirectory = 'uploads';
@@ -83,7 +125,7 @@ export class FilesService {
     return name;
   }
 
-  async checkIn(userId: number, fileIds: number[]): Promise<void> {
+  async checkIn(userId: number, fileIds: number[]): Promise<File[]> {
     const user = await this.userRepository.findOne({
       where: [
         {
@@ -105,7 +147,9 @@ export class FilesService {
         throw new Error(`File ${file.id} is not available for check-in`);
       }
       if (!file?.group?.users?.find((user: User) => user.id === userId)) {
-        throw new UnauthorizedException(`You can not check-in this file because it is not exist in your groups`);
+        throw new UnauthorizedException(
+          `You can not check-in this file because it is not exist in your groups`,
+        );
       }
       file.lockedBy = user;
       file.status = 'checked-out';
@@ -114,10 +158,10 @@ export class FilesService {
       });
     });
 
-    await this.fileRepository.save(files);
+    return await this.fileRepository.save(files);
   }
 
-  async checkOut(userId: number, fileId: number): Promise<void> {
+  async checkOut(userId: number, fileId: number): Promise<File> {
     const file = await this.fileRepository.findOne({
       where: {
         id: fileId,
@@ -138,7 +182,7 @@ export class FilesService {
       });
     }
 
-    await this.fileRepository.save(file);
+    return await this.fileRepository.save(file);
   }
 
   async getFileStatus(fileId: number): Promise<string> {

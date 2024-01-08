@@ -12,6 +12,12 @@ export const uploadFile = async (formData: FormData, groupId: string) => {
   return response;
 };
 
+export const updateFile = async (formData: FormData, fileId: number) => {
+  const response = await filesService.updateFile(fileId, formData);
+  revalidateTag("files");
+  return response;
+};
+
 export const checkInFile = async (details: CheckInFileDto) => {
   const response = await filesService.checkIn(details);
   revalidateTag("files");
