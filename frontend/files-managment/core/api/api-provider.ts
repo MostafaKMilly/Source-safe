@@ -28,7 +28,9 @@ export default class ApiProvider {
       headers: {
         Accept: "application/json",
         ...(token && { Authorization: `Bearer ${token}` }),
-        "Content-Type": "application/json",
+        ...(!config.preventContentType && {
+          "Content-Type": "application/json",
+        }),
         ...(config.options?.headers ?? {}),
       },
     });

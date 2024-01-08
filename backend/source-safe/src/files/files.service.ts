@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { In, Repository } from 'typeorm';
+import { FindOptionsWhere, In, Like, Repository } from 'typeorm';
 import { File } from './file.entity'; // Adjust this import based on your project structure
 import { User } from 'src/users/user.entity';
 import * as fs from 'fs';
@@ -24,7 +24,7 @@ export class FilesService {
     file: Express.Multer.File,
     userId: number,
     groupId: number,
-  ): Promise<File> {
+  ): Promise<{ message: string }> {
     const filePath = this.saveFileOnServer(file);
     const user = await this.userRepository.findOne({
       where: [
@@ -58,7 +58,7 @@ export class FilesService {
         file: newFile,
       });
     }
-    return newFile;
+    return { message: 'File saved successfully' };
   }
 
   private saveFileOnServer(file: Express.Multer.File): string {
@@ -160,13 +160,22 @@ export class FilesService {
     return file;
   }
 
-  async getAllFiles(): Promise<File[]> {
-    return this.fileRepository.find({
+  async getAllFiles(groupId?: string, name?: string): Promise<File[]> {
+    let whereConditions: FindOptionsWhere<File> = {};
+
+    if (groupId) {
+      whereConditions.group = { id: +groupId };
+    }
+    if (name) {
+      whereConditions['name'] = Like(`%${name}%`);
+    }
+
+    const query = {
       relations: ['lockedBy', 'uploadedBy', 'group'],
       select: {
         lockedBy: {
           username: true,
-        id: true,
+          id: true,
           email: true,
         },
         uploadedBy: {
@@ -175,6 +184,9 @@ export class FilesService {
           email: true,
         },
       },
-    });
+      where: whereConditions,
+    };
+
+    return this.fileRepository.find(query);
   }
 }

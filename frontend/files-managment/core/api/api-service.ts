@@ -25,7 +25,12 @@ export default class ApiService {
   }
 
   // POST request
-  public post<T>(endpoint: string, body: any, options?: RequestInit): Promise<T> {
+  public post<T>(
+    endpoint: string,
+    body: any,
+    options?: RequestInit,
+    preventContentType?: boolean
+  ): Promise<T> {
     return this.apiProvider.request<T>({
       endpoint,
       options: {
@@ -33,11 +38,16 @@ export default class ApiService {
         body: JSON.stringify(body),
         ...options,
       },
+      preventContentType,
     });
   }
 
   // PUT request
-  public put<T>(endpoint: string, body: any, options?: RequestInit): Promise<T> {
+  public put<T>(
+    endpoint: string,
+    body: any,
+    options?: RequestInit
+  ): Promise<T> {
     return this.apiProvider.request<T>({
       endpoint,
       options: {
@@ -49,7 +59,11 @@ export default class ApiService {
   }
 
   // PUT request
-  public patch<T>(endpoint: string, body: any, options?: RequestInit): Promise<T> {
+  public patch<T>(
+    endpoint: string,
+    body: any,
+    options?: RequestInit
+  ): Promise<T> {
     return this.apiProvider.request<T>({
       endpoint,
       options: {

@@ -1,39 +1,51 @@
-import React, { useEffect, useState } from "react";
+import React from "react";
 import { getGroup } from "@/core/actions/group.actions";
 import Descriptions from "antd/es/descriptions";
-import DescriptionsItem from "antd/es/descriptions/Item";
-import List from "antd/es/list";
-import ListItem from "antd/es/list/Item";
-import Card from "antd/es/card/Card";
+import moment from "moment";
+import GroupToolbar from "./components/GroupToolbar";
+import FilesCards from "./components/FilesCards";
+import { getAllFiles } from "@/core/actions/files.actions";
 
 type GroupPageProps = {
   params: {
     groupId: number;
   };
+  searchParams: {
+    search?: string;
+  };
 };
 
-const GroupPage: React.FC<GroupPageProps> = async ({ params }) => {
+const GroupPage: React.FC<GroupPageProps> = async ({
+  params,
+  searchParams,
+}) => {
   const group = await getGroup(params.groupId);
+  const files = await getAllFiles({
+    groupId: params.groupId,
+    search: searchParams.search || "",
+  });
+
+  const items = [
+    { label: "Name", content: group.name },
+    { label: "Description", content: group.description },
+    {
+      label: "Created At",
+      content: moment(group.createdAt).format("YYYY-MM-DD HH:mm"),
+    },
+    { label: "Owner", content: group.owner.username },
+    { label: "Files count", content: files.length || 0 },
+    { label: "Members count", content: group.users?.length || 0 },
+  ].map((item, index) => ({
+    key: index.toString(),
+    label: item.label,
+    children: item.content,
+  }));
 
   return (
-    <div>
-      <Descriptions title="Group Details" bordered>
-        <DescriptionsItem label="Name">{group.name}</DescriptionsItem>
-        <DescriptionsItem label="Description">
-          {group.description}
-        </DescriptionsItem>
-        <DescriptionsItem label="Created At">
-          {group.createdAt}
-        </DescriptionsItem>
-        <DescriptionsItem label="Updated At">
-          {group.updatedAt}
-        </DescriptionsItem>
-        <DescriptionsItem label="Owner">
-          {group.owner.username}
-        </DescriptionsItem>
-      </Descriptions>
-
-      
+    <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
+      <Descriptions title="Group Details" column={3} items={items} />
+      <GroupToolbar groupId={group.id} />
+      <FilesCards files={files} />
     </div>
   );
 };

@@ -6,10 +6,7 @@ import {
 } from "@/core/services/files.service";
 import { revalidateTag } from "next/cache";
 
-export const uploadFile = async (file: File, groupId: string) => {
-  const formData = new FormData();
-  formData.append("file", file);
-
+export const uploadFile = async (formData: FormData, groupId: string) => {
   const response = await filesService.uploadFile(formData, groupId);
   revalidateTag("files");
   return response;
@@ -37,7 +34,10 @@ export const getFile = async (fileId: number) => {
   return response;
 };
 
-export const getAllFiles = async () => {
-  const response = await filesService.getAllFiles();
+export const getAllFiles = async (searchParams?: {
+  search?: string;
+  groupId?: number;
+}) => {
+  const response = await filesService.getAllFiles(searchParams);
   return response;
 };

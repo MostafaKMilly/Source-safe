@@ -14,7 +14,11 @@ class FilesService extends ApiService {
   public uploadFile(data: FormData, groupId: string): Promise<boolean> {
     return this.post<boolean>(
       "/files/upload" + stringifyQueryParams({ groupId }),
-      data
+      data,
+      {
+        body: data,
+      },
+      true
     );
   }
 
@@ -42,8 +46,11 @@ class FilesService extends ApiService {
     });
   }
 
-  public getAllFiles(): Promise<File[]> {
-    return this.get<File[]>("/files", undefined, {
+  public getAllFiles(searchParams?: {
+    search?: string;
+    groupId?: number;
+  }): Promise<File[]> {
+    return this.get<File[]>("/files", searchParams, {
       next: {
         tags: ["files"],
       },
