@@ -24,7 +24,14 @@ async function HistoryPage({
   }
 
   return (
-    <div>
+    <div
+      style={{
+        height: "100%",
+        display: "flex",
+        flexDirection: "column",
+        minHeight: 0,
+      }}
+    >
       <HistoryList history={history} />
     </div>
   );

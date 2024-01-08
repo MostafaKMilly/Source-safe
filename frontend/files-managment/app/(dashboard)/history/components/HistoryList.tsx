@@ -15,6 +15,24 @@ function HistoryList({ history = [] }: { history: History[] }) {
       title: "File Name",
       dataIndex: ["file", "name"],
       key: "fileName",
+      width: 300,
+    },
+
+    {
+      title: "Locked by",
+      dataIndex: ["file", "lockedBy", "username"],
+      key: "username",
+      render: (text: string) => (text ? text : "N/A"),
+    },
+    {
+      title: "Uploaded by",
+      dataIndex: ["file", "uploadedBy", "username"],
+      key: "username",
+    },
+    {
+      title: "File status",
+      dataIndex: ["file", "status"],
+      key: "username",
     },
     {
       title: "Created At",
@@ -27,8 +45,13 @@ function HistoryList({ history = [] }: { history: History[] }) {
   ];
 
   return (
-    <div>
-      <Table dataSource={history} columns={columns} rowKey="id" />
+    <div style={{ height: "100%" }}>
+      <Table
+        dataSource={history}
+        columns={columns}
+        rowKey="id"
+        scroll={{ y: 470 }}
+      />
     </div>
   );
 }
