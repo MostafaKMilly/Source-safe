@@ -153,7 +153,7 @@ export class GroupService {
         addUserData.users.map((item) => this.preLoadUser(item)),
       ));
     const group = await this.groupRepository.findOne({
-      relations: ['owner'],
+      relations: ['users', 'owner'],
       where: { id: addUserData.groupId },
     });
     if (!group)
