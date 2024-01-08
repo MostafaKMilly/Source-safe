@@ -1,6 +1,14 @@
 "use client";
 import React, { useState } from "react";
-import { Card, Menu, Dropdown, Button, notification, Row } from "antd";
+import {
+  Card,
+  Menu,
+  Dropdown,
+  Button,
+  notification,
+  Row,
+  Checkbox,
+} from "antd";
 import {
   FileOutlined,
   EditOutlined,
@@ -22,6 +30,8 @@ import { useRouter } from "next/navigation";
 type FileCardProps = {
   file: File;
   currentUser: User;
+  selectedFiles: number[];
+  onFileSelect: (fileId: number, isSelected: boolean) => void;
 };
 
 const API_LINK = process.env.NEXT_PUBLIC_API_URI;
@@ -62,7 +72,12 @@ const showNotification = (
   });
 };
 
-function FileCard({ file, currentUser }: FileCardProps) {
+function FileCard({
+  file,
+  currentUser,
+  onFileSelect,
+  selectedFiles,
+}: FileCardProps) {
   const fileExtension = file.name.split(".").pop();
   const [updateFileVisisble, setUpdateFileVisisble] = useState(false);
   const isFileCheckedOut = file.status === "checked-out";
@@ -149,10 +164,21 @@ function FileCard({ file, currentUser }: FileCardProps) {
     </Menu>
   );
 
+  const handleSelectionChange = (e: any) => {
+    onFileSelect(file.id, e.target.checked);
+  };
+
   return (
     <Card
       hoverable
-      title={file.name}
+      title={
+        <Checkbox
+          onChange={handleSelectionChange}
+          checked={selectedFiles.includes(file.id)}
+        >
+          {file.name}
+        </Checkbox>
+      }
       cover={
         <div
           style={{

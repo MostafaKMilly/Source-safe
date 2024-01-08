@@ -6,7 +6,13 @@ import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import Title from "antd/es/typography/Title";
 import FileUploadDialog from "./FileUploadDialog";
 
-function GroupToolbar({ groupId }: { groupId: number }) {
+function GroupToolbar({
+  groupId,
+  children,
+}: {
+  groupId: number;
+  children: React.ReactNode;
+}) {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState(searchParams.get("search") || "");
   const router = useRouter();
@@ -53,6 +59,8 @@ function GroupToolbar({ groupId }: { groupId: number }) {
         <Button icon={<UploadOutlined />} onClick={onUpload}>
           Upload
         </Button>
+
+        {children}
       </Row>
       <FileUploadDialog
         groupId={groupId}

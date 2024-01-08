@@ -5,6 +5,7 @@ import moment from "moment";
 import GroupToolbar from "./components/GroupToolbar";
 import FilesCards from "./components/FilesCards";
 import { getAllFiles } from "@/core/actions/files.actions";
+import { getUserProfile } from "@/core/actions/users.actions";
 
 type GroupPageProps = {
   params: {
@@ -24,6 +25,7 @@ const GroupPage: React.FC<GroupPageProps> = async ({
     groupId: params.groupId,
     search: searchParams.search || "",
   });
+  const currentUser = await getUserProfile();
 
   const items = [
     { label: "Name", content: group.name },
@@ -44,8 +46,7 @@ const GroupPage: React.FC<GroupPageProps> = async ({
   return (
     <div style={{ height: "100%", display: "flex", flexDirection: "column" }}>
       <Descriptions title="Group Details" column={3} items={items} />
-      <GroupToolbar groupId={group.id} />
-      <FilesCards files={files} />
+      <FilesCards files={files} currentUser={currentUser} groupId={group.id} />
     </div>
   );
 };

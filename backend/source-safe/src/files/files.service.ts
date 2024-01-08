@@ -1,10 +1,19 @@
 import {
+  HttpException,
+  HttpStatus,
   Injectable,
   NotFoundException,
   UnauthorizedException,
 } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { FindOptionsWhere, In, LessThan, Like, Repository } from 'typeorm';
+import {
+  DataSource,
+  FindOptionsWhere,
+  In,
+  LessThan,
+  Like,
+  Repository,
+} from 'typeorm';
 import { File } from './file.entity';
 import { User } from 'src/users/user.entity';
 import * as fs from 'fs';
@@ -23,6 +32,7 @@ export class FilesService {
     private readonly historyService: HistoryService,
     @InjectRepository(Group)
     private groupRepository: Repository<Group>,
+    private datasource: DataSource,
   ) {}
 
   @Cron('*/1 * * * *') // Runs every 10 minutes
@@ -149,39 +159,71 @@ export class FilesService {
 
   async checkIn(userId: number, fileIds: number[]): Promise<File[]> {
     const user = await this.userRepository.findOne({
-      where: [
-        {
-          id: userId,
-        },
-      ],
+      where: {
+        id: userId,
+      },
     });
     if (!user) {
       throw new NotFoundException('User not found');
     }
+
     const files = await this.fileRepository.find({
       where: {
         id: In(fileIds),
       },
       relations: ['group', 'group.users'],
     });
-    files.forEach(async (file) => {
-      if (file.status !== 'free') {
-        throw new Error(`File ${file.id} is not available for check-in`);
+
+    const errors = [];
+
+    const queryRunner = this.datasource.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
+    try {
+      for (const file of files) {
+        if (file.status !== 'free') {
+          errors.push(`File ${file.id} is not available for check-in`);
+          continue;
+        }
+        if (!file.group?.users?.some((u) => u.id === userId)) {
+          errors.push(
+            `You cannot check-in file ${file.id} because it is not in your groups`,
+          );
+          continue;
+        }
+
+        file.lockedBy = user;
+        file.status = 'checked-out';
+        file.updatedAt = new Date();
+
+        await queryRunner.manager.save(file);
+        await this.historyService.create({ file });
       }
-      if (!file?.group?.users?.find((user: User) => user.id === userId)) {
-        throw new UnauthorizedException(
-          `You can not check-in this file because it is not exist in your groups`,
+
+      if (errors.length > 0) {
+        // Throw an HttpException with a custom message and a 400 Bad Request status
+        throw new HttpException(
+          { message: errors.join(', '), error: 'Bad Request' },
+          HttpStatus.BAD_REQUEST,
         );
       }
-      file.lockedBy = user;
-      file.status = 'checked-out';
-      file.updatedAt = new Date();
-      await this.historyService.create({
-        file: file,
-      });
-    });
 
-    return await this.fileRepository.save(files);
+      await queryRunner.commitTransaction();
+    } catch (error) {
+      await queryRunner.rollbackTransaction();
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      throw new HttpException(
+        { message: 'Internal Server Error', error: 'Internal Server Error' },
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    } finally {
+      await queryRunner.release();
+    }
+
+    return this.fileRepository.findBy({ id: In(fileIds) });
   }
 
   async checkOut(userId: number, fileId: number): Promise<File> {
