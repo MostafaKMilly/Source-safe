@@ -61,7 +61,7 @@ export class FilesController {
   @Get()
   async getFilesByGroup(
     @Query('groupId') groupId?: string,
-    @Query('name') name?: string,
+    @Query('search') name?: string,
   ) {
     return this.filesService.getAllFiles(groupId, name);
   }
