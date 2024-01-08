@@ -53,3 +53,23 @@ services:
       - '5050:80'
     depends_on:
       - source-safe-database-dev
+
+  backend-source-safe-dev-nginx:
+    container_name: backend-source-safe-dev-nginx
+    ports:
+      - '4050:80'
+    build:
+      context: .
+      dockerfile: ./backend/source-safe/Dockerfile.reverse-proxy
+    depends_on:
+      - source-safe-backend-dev
+
+  frontend-source-safe-dev-nginx:
+    container_name: frontend-source-safe-dev-nginx
+    ports:
+      - '4060:80'
+    build:
+      context: .
+      dockerfile: ./frontend/files-managment/Dockerfile.reverse-proxy
+    depends_on:
+      - source-safe-frontend-dev
