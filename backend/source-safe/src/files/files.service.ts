@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { File } from './file.entity'; // Adjust this import based on your project structure
@@ -94,12 +94,18 @@ export class FilesService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
-    const files = await this.fileRepository.findBy({
-      id: In(fileIds),
+    const files = await this.fileRepository.find({
+      where: {
+        id: In(fileIds),
+      },
+      relations: ['group', 'group.users'],
     });
     files.forEach(async (file) => {
       if (file.status !== 'free') {
         throw new Error(`File ${file.id} is not available for check-in`);
+      }
+      if (!file?.group?.users?.find((user: User) => user.id === userId)) {
+        throw new UnauthorizedException(`You can not check-in this file because it is not exist in your groups`);
       }
       file.lockedBy = user;
       file.status = 'checked-out';

@@ -1,4 +1,4 @@
-FROM node:18-alpine AS builder
+FROM node:20 AS builder
 WORKDIR /frontend
 
 COPY ./frontend/files-managment/package*.json ./
@@ -10,7 +10,7 @@ COPY ./frontend/files-managment .
 RUN npm run build
 
 
-FROM node:18-alpine AS runner
+FROM node:20 AS runner
 WORKDIR /frontend
 
 COPY --from=builder /frontend/.next ./.next
