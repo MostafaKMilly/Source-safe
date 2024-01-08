@@ -5,8 +5,10 @@ import {
   ManyToMany,
   JoinTable,
   ManyToOne,
+  OneToMany,
 } from 'typeorm';
 import { User } from 'src/users/user.entity';
+import { File } from 'src/files/file.entity';
 
 @Entity('groups')
 export class Group {
@@ -31,6 +33,10 @@ export class Group {
     nullable: true,
   })
   users: Array<User>;
+
   @ManyToOne(() => User, (user) => user.ownedGroups)
   owner: User;
+
+  @OneToMany(() => File, file => file.group)
+  files: File[];
 }

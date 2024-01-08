@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { In, Repository } from 'typeorm';
 import { File } from './file.entity'; // Adjust this import based on your project structure
@@ -6,6 +6,8 @@ import { User } from 'src/users/user.entity';
 import * as fs from 'fs';
 import * as path from 'path';
 import { HistoryService } from 'src/history/history.service';
+import { GroupService } from 'src/group/group.service';
+import { Group } from 'src/group/group.entity';
 
 @Injectable()
 export class FilesService {
@@ -14,10 +16,12 @@ export class FilesService {
     private fileRepository: Repository<File>,
     @InjectRepository(User)
     private userRepository: Repository<User>,
+    @InjectRepository(Group)
+    private groupRepository: Repository<Group>,
     private readonly historyService: HistoryService,
   ) {}
 
-  async uploadFile(file: Express.Multer.File, userId: number): Promise<File> {
+  async uploadFile(file: Express.Multer.File, userId: number, groupId: number): Promise<File> {
     const filePath = this.saveFileOnServer(file);
     const user = await this.userRepository.findOne({
       where: [
@@ -29,11 +33,27 @@ export class FilesService {
     if (!user) {
       throw new NotFoundException('User not found');
     }
+    const group = await this.groupRepository.findOne({
+      relations: ['users'],
+      where: [
+        {
+          id: groupId,
+        },
+      ],
+    });
+    if (!group) {
+      throw new NotFoundException('Group not found');
+    }
+    if (!group?.users?.find((user: User) => user.id === userId)) {
+      throw new UnauthorizedException(`You can not post in group ${group?.name} because you are not a member`);
+    }
+
     const newFile = this.fileRepository.create({
       name: file.originalname,
       path: filePath,
       uploadedBy: user,
       status: 'free',
+      group: group
     });
     await this.fileRepository.save(newFile);
     if (newFile) {

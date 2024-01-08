@@ -153,9 +153,10 @@ export class GroupService {
         addUserData.users.map((item) => this.preLoadUser(item)),
       ));
     const group = await this.groupRepository.findOne({
-      relations: ['owner'],
+      relations: ['users', 'owner'],
       where: { id: addUserData.groupId },
     });
+
     if (!group)
       throw new HttpException(`Group not found`, HttpStatus.NOT_FOUND);
 
@@ -163,12 +164,13 @@ export class GroupService {
       throw new HttpException(`Unauthorized`, HttpStatus.UNAUTHORIZED);
     }
     const setUser = new Set(users.concat(group.users));
-
+    
     const data = await this.groupRepository.preload({
       id: addUserData.groupId,
       ...group,
       users: [...setUser],
     });
+
     await this.groupRepository.save(data);
     return true;
   }
